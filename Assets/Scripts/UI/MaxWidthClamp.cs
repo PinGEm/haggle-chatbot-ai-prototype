@@ -5,6 +5,7 @@ using TMPro;
 [ExecuteAlways]
 [RequireComponent(typeof(TextMeshProUGUI))]
 [RequireComponent(typeof(LayoutElement))]
+
 public class MaxWidthClamp : MonoBehaviour
 {
     public float maxWidth = 720f;

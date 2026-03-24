@@ -8,6 +8,8 @@ public class SendMessage : MonoBehaviour
     [SerializeField] private TMP_InputField _messageField;
     [SerializeField] private TMP_Text _aiMessage;
 
+    public PersonalityScriptableObject _aiPersona;
+
     public void SendResponse()
     {
         GameAsync();
@@ -32,7 +34,7 @@ public class SendMessage : MonoBehaviour
                     Player behavior: {"Neutral"}
 
 
-                Please remember to follow the game rules and ONLY respond in the given JSON format");
+                Please remember to follow the personality, speech rules, game rules and ONLY respond in the given JSON format");
         _aiMessage.text = reply;
         Debug.Log(reply);
     }

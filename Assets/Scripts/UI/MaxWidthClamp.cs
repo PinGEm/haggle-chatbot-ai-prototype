@@ -7,7 +7,7 @@ using TMPro;
 [RequireComponent(typeof(LayoutElement))]
 public class MaxWidthClamp : MonoBehaviour
 {
-    public float maxWidth = 720f;
+    [SerializeField] private float maxWidth = 720f;
     private TextMeshProUGUI textMesh;
     private LayoutElement layoutElement;
 
@@ -21,16 +21,14 @@ public class MaxWidthClamp : MonoBehaviour
     {
         if (textMesh == null || layoutElement == null) return;
 
-        // Simply check the width and apply the clamp. No forced rebuilds!
+        
         if (textMesh.preferredWidth > maxWidth)
         {
-            if (layoutElement.preferredWidth != maxWidth)
-                layoutElement.preferredWidth = maxWidth;
+            if (layoutElement.preferredWidth != maxWidth) layoutElement.preferredWidth = maxWidth;
         }
         else
         {
-            if (layoutElement.preferredWidth != -1)
-                layoutElement.preferredWidth = -1;
+            if (layoutElement.preferredWidth != -1) layoutElement.preferredWidth = -1;
         }
     }
 }

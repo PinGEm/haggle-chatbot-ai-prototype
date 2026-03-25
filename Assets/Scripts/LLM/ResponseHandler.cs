@@ -25,6 +25,7 @@ namespace LLM_Handler
         int _offersMade = 0;
         float _currentAIAskingPrice;
         float _minimumItemPrice;
+        float _lastDiscussedPrice;
         #endregion
         
         private AiResponseParser _aiParser;
@@ -50,9 +51,31 @@ namespace LLM_Handler
 
         async void TryGetAIResponse(Button sendButton)
         {
+            // Parse Input for Player Offer
+            var result = PlayerOfferParser.Parse(_messageField.text);
+            string offerValue = "";
+
+            if (result.OfferValue.HasValue)
+            {
+                offerValue = result.OfferValue.Value.ToString();
+                _lastDiscussedPrice = result.OfferValue.Value;
+                _offersMade++;
+            }
+            else
+            {
+                offerValue = "none";
+            }
+
+            string confidenceLevel = result.Confidence.ToString().ToLower();
+
+            Debug.Log($"You are currently selling an item to the player. \r\n\r\n" +
+                    GetPlayerInputPrompt(offerValue, confidenceLevel) + GetCurrentItemState() + GetMemoryFacts() +
+                    "Please remember to follow the personality, speech rules, game rules and ONLY respond in the given JSON format");
+
+            // Send full response to LLM
             string reply = await _llmAgent.Chat
-                ($"You are currently selling an item to the player. " +
-                    GetPlayerInputPrompt() + GetCurrentItemState() + GetMemoryFacts() + 
+                ($"You are currently selling an item to the player. \r\n\r\n" +
+                    GetPlayerInputPrompt(offerValue, confidenceLevel) + GetCurrentItemState() + GetMemoryFacts() + 
                     "Please remember to follow the personality, speech rules, game rules and ONLY respond in the given JSON format");
             
             sendButton.interactable = true;
@@ -63,38 +86,39 @@ namespace LLM_Handler
             Debug.Log(reply);
         }
 
-        string GetPlayerInputPrompt()
+        string GetPlayerInputPrompt(string offerValue, string confidenceLevel)
         {
-            string full_prompt = "=== PLAYER INPUT===\r\n";
+            string player_input_prompt = "=== PLAYER INPUT===\r\n";
 
-            full_prompt += $"Player Message: {_messageField.text}\r\n";
-            full_prompt += $"Player Offer: {300}\r\n"; // Change to be the actual numerical offer OR none
-            full_prompt += $"Last Discussed Price: {_aiParser.asking_price}\r\n"; // note: this is probably wrong logic
-            full_prompt += $"Player Tone: {"Neutral"}\r\n\r\n"; // Change to be the actual tone
+            player_input_prompt += $"Player Message: {_messageField.text}\r\n";
+            player_input_prompt += $"Player Offer: {offerValue}\r\n"; 
+            player_input_prompt += $"Offer Confidence: {confidenceLevel}\r\n"; 
+            player_input_prompt += $"Last Discussed Price: {_lastDiscussedPrice}\r\n";
+            player_input_prompt += $"Player Tone: {"Neutral"}\r\n\r\n"; // Change to be the actual tone
 
-            return full_prompt;
+            return player_input_prompt;
         }
 
         string GetCurrentItemState()
         {
-            string full_prompt = "=== CURRENT ITEM STATE ===\r\n";
+            string item_state_prompt = "=== CURRENT ITEM STATE ===\r\n";
 
-            full_prompt += $"Item: {_item.ItemName}\r\n";
-            full_prompt += $"Item Description: {_item.ItemDescription}\r\n";
-            full_prompt += $"Base Price: {_item.ItemBasePrice}\r\n";
-            full_prompt += $"Minimum Price: {_minimumItemPrice}\r\n";
-            full_prompt += $"Current Asking Price: {_aiParser.asking_price}\r\n";
-            full_prompt += $"Number of offers made so far: {_offersMade}\r\n";
-            full_prompt += $"Player Behavior: {"Neutral"}\r\n\r\n"; // change to be aggressive (many low offers) | passive
+            item_state_prompt += $"Item: {_item.ItemName}\r\n";
+            item_state_prompt += $"Item Description: {_item.ItemDescription}\r\n";
+            item_state_prompt += $"Base Price: {_item.ItemBasePrice}\r\n";
+            item_state_prompt += $"Minimum Price: {_minimumItemPrice}\r\n";
+            item_state_prompt += $"Current Asking Price: {_currentAIAskingPrice}\r\n";
+            item_state_prompt += $"Number of offers made so far: {_offersMade}\r\n";
+            item_state_prompt += $"Player Behavior: {"Neutral"}\r\n\r\n"; // change to be aggressive (many low offers) | passive
 
-            return full_prompt;
+            return item_state_prompt;
         }
 
         string GetMemoryFacts()
         {
-            string full_prompt = "=== ADDITIONAL MEMORY FACTS ===\r\n";
+            string memory_facts_prompt = "=== ADDITIONAL MEMORY FACTS ===\r\n";
 
-            if (_aiParser.convo_memory_fact != "")
+            if (!string.IsNullOrWhiteSpace(_aiParser.convo_memory_fact))
             {
                 _memoryFacts.Add(_aiParser.convo_memory_fact + "\r\n");
             }
@@ -104,17 +128,17 @@ namespace LLM_Handler
                 for (int i = 0; i < _memoryFacts.Count; i++)
                 {
                     // Additionally: do a check if the current memory fact has been seen before (o(n) time complexity)
-                    full_prompt += _memoryFacts[i];
+                    memory_facts_prompt += _memoryFacts[i];
                 }
 
-                full_prompt += "\r\n";
+                memory_facts_prompt += "\r\n";
             }
             else
             {
-                full_prompt += "None\r\n\r\n";
+                memory_facts_prompt += "None\r\n\r\n";
             }
 
-            return full_prompt;
+            return memory_facts_prompt;
         }
     }
 }

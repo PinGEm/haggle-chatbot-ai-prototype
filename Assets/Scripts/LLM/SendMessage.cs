@@ -8,9 +8,23 @@ namespace LLM_Handler
     {
         [SerializeField] private LLMAgent _llmAgent;
         [SerializeField] private TMP_InputField _messageField;
-        [SerializeField] private TMP_Text _aiMessage;
 
+
+        #region Temporary Variables
+        [SerializeField] private TMP_Text _aiMessage;
+        [SerializeField] private TMP_Text _aiIntent;
+
+
+        // Temporary Scriptable Objects
+        public ItemScriptableObject _item;
         public PersonalityScriptableObject _aiPersona;
+
+        // Temporary Variables
+        int _offersMade = 0;
+        float _currentAIAskingPrice;
+        float _minimumItemPrice;
+        #endregion
+
 
         private AiResponseParser _aiParser;
 
@@ -19,6 +33,9 @@ namespace LLM_Handler
             _aiPersona.InitializePrompt();
 
             _aiParser = new AiResponseParser();
+
+            _currentAIAskingPrice = _item.ItemBasePrice * 1.5f;
+            _minimumItemPrice = _item.ItemBasePrice + 50;
         }
 
         public void SendResponse()
@@ -38,18 +55,23 @@ namespace LLM_Handler
                     Player tone: {"Neutral"}
 
                     === CURRENT ITEM STATE ===
-                    Item: {"Sword"}
-                    Base price: {200}
-                    Minimum price: {250}
-                    Current asking price: {320}
-                    Number of offers so far: {1}
+                    Item: {_item.ItemName}
+                    Item Description: {_item.ItemDescription}
+                    Base price: {_item.ItemBasePrice}
+                    Minimum price: {_minimumItemPrice}
+                    Current asking price: {_currentAIAskingPrice}
+                    Number of offers so far: {_offersMade}
                     Player behavior: {"Neutral"}
 
                     === ADDITIONAL MEMORY FACTS ===
                     None
 
                     Please remember to follow the personality, speech rules, game rules and ONLY respond in the given JSON format");
+
+
             _aiMessage.text = _aiParser.ParseResponse(reply);
+            _aiIntent.text = "AI Intent: " + _aiParser.ai_intent;
+            
             Debug.Log(reply);
         }
     }

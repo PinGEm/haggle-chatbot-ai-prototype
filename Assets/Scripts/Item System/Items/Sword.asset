@@ -15,5 +15,9 @@ MonoBehaviour:
   m_itemImage: {fileID: 0}
   m_itemName: Sword
   m_itemDescription: Finely-crafted sword designed for durability
-  m_itemDetails: []
+  m_itemDetails:
+  - Forged from high-carbon steel
+  - Used for about three years
+  - Shows minimal wear even after years of use
+  - Easy to maintain
   m_itemBasePrice: 200

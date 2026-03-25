@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e954abf6a60578342b0e98cbb8a5c730, type: 3}
   m_Name: Sword
   m_EditorClassIdentifier: Assembly-CSharp::ItemScriptableObject
-  m_itemImage: {fileID: 0}
+  m_itemImage: {fileID: 2800000, guid: 7d47f306afef27341bd6eb84a3db1ba7, type: 3}
   m_itemName: Sword
   m_itemDescription: Finely-crafted sword designed for durability
   m_itemDetails:

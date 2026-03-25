@@ -1,12 +1,11 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 [CreateAssetMenu(fileName = "Item", menuName = "ScriptableObjects/ItemScriptableObject", order = 1)]
 public class ItemScriptableObject : ScriptableObject
 {
     [Header("Item Details")]
     
-    [SerializeField] private RawImage m_itemImage;
+    [SerializeField] private Texture2D m_itemImage;
     [SerializeField] private string m_itemName;
     [SerializeField] private string m_itemDescription;
     [SerializeField] private string[] m_itemDetails;
@@ -14,7 +13,7 @@ public class ItemScriptableObject : ScriptableObject
     [SerializeField] private float m_itemBasePrice;
 
 
-    public RawImage ItemImage { get { return m_itemImage; } }
+    public Texture2D ItemImage { get { return m_itemImage; } }
     public string ItemName { get { return m_itemName; } }
     public string ItemDescription { get { return m_itemDescription; } }
     public string[] ItemDetails { get { return m_itemDetails; } }

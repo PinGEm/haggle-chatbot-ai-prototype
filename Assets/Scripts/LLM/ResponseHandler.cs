@@ -26,7 +26,8 @@ namespace LLM_Handler
         float _currentAIAskingPrice;
         float _minimumItemPrice;
         #endregion
-        
+
+        public ChatManager chatManager;
         private AiResponseParser _aiParser;
 
         private void Awake()
@@ -61,6 +62,7 @@ namespace LLM_Handler
             _aiIntent.text = "AI Intent: " + _aiParser.ai_intent;
             
             Debug.Log(reply);
+            chatManager.ReceiveAIMessage(reply);
         }
 
         string GetPlayerInputPrompt()

@@ -5,27 +5,32 @@ using TMPro;
 [ExecuteAlways]
 [RequireComponent(typeof(TextMeshProUGUI))]
 [RequireComponent(typeof(LayoutElement))]
-
 public class MaxWidthClamp : MonoBehaviour
 {
     public float maxWidth = 720f;
     private TextMeshProUGUI textMesh;
     private LayoutElement layoutElement;
 
-    void Update()
+    void Start()
     {
-        if (textMesh == null) textMesh = GetComponent<TextMeshProUGUI>();
-        if (layoutElement == null) layoutElement = GetComponent<LayoutElement>();
+        textMesh = GetComponent<TextMeshProUGUI>();
+        layoutElement = GetComponent<LayoutElement>();
+    }
 
-        // If the text wants to be wider than 720, force it to wrap.
-        // If it's short like "hi", let it stay small!
+    void LateUpdate()
+    {
+        if (textMesh == null || layoutElement == null) return;
+
+        // Simply check the width and apply the clamp. No forced rebuilds!
         if (textMesh.preferredWidth > maxWidth)
         {
-            layoutElement.preferredWidth = maxWidth;
+            if (layoutElement.preferredWidth != maxWidth)
+                layoutElement.preferredWidth = maxWidth;
         }
         else
         {
-            layoutElement.preferredWidth = -1; // -1 means "turn off preferred width"
+            if (layoutElement.preferredWidth != -1)
+                layoutElement.preferredWidth = -1;
         }
     }
 }

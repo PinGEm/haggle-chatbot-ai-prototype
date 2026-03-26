@@ -54,7 +54,6 @@ public class ChatManager : MonoBehaviour
     // This receives the RAW JSON from your ResponseHandler
     public void ReceiveAIMessage(string rawJson)
     {
-        Debug.Log("1");
         StartCoroutine(ProcessAIMessageWithDelay(rawJson));
     }
 

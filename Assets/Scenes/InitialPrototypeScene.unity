@@ -2874,7 +2874,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SendMessage
   _llmAgent: {fileID: 1915872858}
   _messageField: {fileID: 1419009311}
-  _aiMessage: {fileID: 1776467495}
   _aiIntent: {fileID: 2071997037}
   _item: {fileID: 11400000, guid: e1539a78130411f48af8daea0d5dcb5e, type: 2}
   _aiPersona: {fileID: 11400000, guid: 52d39d56c8668e54f823a94786603069, type: 2}
@@ -4961,6 +4960,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3002493687263979096, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
+      propertyPath: advancedOptions
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3002493687263979096, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
+      propertyPath: maxContextLength
+      value: 262144
+      objectReference: {fileID: 0}
     - target: {fileID: 4204533064536706296, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
       propertyPath: m_Name
       value: LLM MODEL

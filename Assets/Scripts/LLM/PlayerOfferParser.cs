@@ -2,7 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using UnityEngine;
+
+// NOTE: THIS FUNCTION REQUIRES MUCH MORE:
+// - UPDATES
+// - CHECKS
+// - REVISIONS
+// *** THEREFORE: THIS SCRIPT SHOULD BE CHECKED AND UPDATED
+// *** FOR CONSTANTLY FOR ANY POSSIBLE LOOPHOLES IN PARSING 
+// *** PLAYER RESPONSE
 
 public class PlayerOfferParser
 {
@@ -36,6 +43,9 @@ public class PlayerOfferParser
     {
         var numbers = ExtractAllNumbers(input);
 
+        var ranges = ExtractRanges(input);
+        numbers.AddRange(ranges);
+
         if (numbers.Count == 0)
         {
             return new OfferResult
@@ -46,18 +56,22 @@ public class PlayerOfferParser
             };
         }
 
-        var classified = new List<(float value, NumberContext context)>();
+        var candidates = new List<(float value, int score, NumberContext context)>();
 
-        foreach (var num in numbers)
+        foreach (Match match in Regex.Matches(input, @"\b\d+(\.\d+)?\b"))
         {
-            var context = ClassifyNumber(input, num);
-            classified.Add((num, context));
+            float value = float.Parse(match.Value);
+
+            var (score, context) = ClassifyNumber(input, match);
+            candidates.Add((value, score, context));
         }
 
-        // Get valid offer candidates
-        var candidates = classified.Where(x => x.context == NumberContext.OfferCandidate).Select(x => x.value).ToList();
+        // Get valid offer candidates (score-based, not just regex match)
+        var valid = candidates
+            .Where(x => x.context == NumberContext.OfferCandidate && x.score > 0)
+            .ToList();
 
-        if (candidates.Count == 0)
+        if (valid.Count == 0)
         {
             return new OfferResult
             {
@@ -67,12 +81,12 @@ public class PlayerOfferParser
             };
         }
 
-        float selected = ResolveFinalOffer(input, candidates);
+        float selected = ResolveFinalOffer(input, valid);
 
         return new OfferResult
         {
             OfferValue = selected,
-            Confidence = ScoreConfidence(input, selected),
+            Confidence = ScoreConfidence(valid.Max(x => x.score)),
             DebugReason = "Offer detected"
         };
     }
@@ -80,7 +94,7 @@ public class PlayerOfferParser
 
     static List<float> ExtractAllNumbers(string input)
     {
-        var matches = Regex.Matches(input, @"\$?\b\d+(\.\d+)?\b");
+        var matches = Regex.Matches(input, @"\b\d+(\.\d+)?\b");
 
         return matches
             .Select(m => float.Parse(m.Value))
@@ -88,67 +102,118 @@ public class PlayerOfferParser
     }
 
 
-    static NumberContext ClassifyNumber(string input, float number)
+    // ================================================= \\\
+    // New scoring-based classification (more reliable) \\\
+    // ================================================= \\\
+    static (int score, NumberContext context) ClassifyNumber(string input, Match match)
     {
-        // Find what the number means in the player input
-
         string lowered = input.ToLower();
 
-        // Find position of the number
-        int index = lowered.IndexOf(number.ToString()); // find where the number is located
-        if (index == -1) return NumberContext.Unclear;
+        int index = match.Index;
 
-        // Get a small "window" around the number to determine context of the sentence
-        int start = Math.Max(0, index - 25);
-        int length = Math.Min(50, lowered.Length - start);
+        // Get tighter window for proximity scoring
+        int start = Math.Max(0, index - 40);
+        int length = Math.Min(80, lowered.Length - start);
         string window = lowered.Substring(start, length);
 
-        // REJECTION PATTERNS
-        if (Regex.IsMatch(window, @"(wouldn't|would not|never|not).*" + number))
-            return NumberContext.Rejection;
+        int score = 0;
 
-        // REFERENCE PRICE
-        if (Regex.IsMatch(window, @"(selling|price|worth|cost).*" + number))
-            return NumberContext.ReferencePrice;
+        // Check if the number is near any keyphrases
 
-        // OFFER PATTERNS
-        if (Regex.IsMatch(window, @"(buy|take|offer|give).*" + number) ||
-            Regex.IsMatch(window, number + @".*(deal|offer)"))
-            return NumberContext.OfferCandidate;
+        int proximityBonus = 0;
 
-        // If no matches, set to unclear
-        return NumberContext.Unclear;
+        var keywordMatches = Regex.Matches(window, @"\b(buy|pay|offer|give|take|offering)\b");
+
+        foreach (Match keyword in keywordMatches)
+        {
+            int distance = Math.Abs((start + keyword.Index) - index);
+
+            if (distance < 10) proximityBonus += 3;
+            else if (distance < 20) proximityBonus += 2;
+            else if (distance < 30) proximityBonus += 1;
+        }
+
+        score += proximityBonus;
+
+        // STRONG OFFER INDICATORS \\\
+
+        if (Regex.IsMatch(window, @"\b(buy|pay|offer|give|take|offering)\b"))
+            score += 2;
+
+        // HESITATION LANGUAGE 
+
+        if (Regex.IsMatch(window, @"\b(maybe|would|could|perhaps|guess)\b"))
+            score += 1;
+
+        // REJECTION LANGUAGE
+
+        if (Regex.IsMatch(window, @"\b(not|never|won't|wouldn't)\b"))
+        {
+            score -= 3;
+            return (score, NumberContext.Rejection);
+        }
+
+        // REFERENCE PRICE (neutral)
+
+        if (Regex.IsMatch(window, @"\b(price|worth|cost|selling)\b"))
+        {
+            return (score, NumberContext.ReferencePrice);
+        }
+
+        if (score > 0)
+            return (score, NumberContext.OfferCandidate);
+
+        return (score, NumberContext.Unclear);
     }
 
-    static float ResolveFinalOffer(string input, List<float> candidates)
+
+    static float ResolveFinalOffer(string input, List<(float value, int score, NumberContext context)> candidates)
     {
-        // If multiple numbers exist, find the number which is most likely the offer
         string lowered = input.ToLower();
 
         // If player "changes mind", take LAST number
         if (lowered.Contains("wait") || lowered.Contains("actually"))
         {
-            return candidates.Last();
+            return candidates.Last().value;
         }
 
-        // Otherwise: take highest (players usually negotiate upward)
-        return candidates.Max();
+        // Otherwise: take highest scored candidate first, then highest value
+        return candidates
+            .OrderByDescending(x => x.score)
+            .ThenByDescending(x => x.value)
+            .First().value;
     }
 
-    // Check for confidence
-    static OfferConfidence ScoreConfidence(string input, float value)
+
+    // Rank numbers based on score
+    static OfferConfidence ScoreConfidence(int score)
     {
-        string lowered = input.ToLower();
+        if (score >= 3) return OfferConfidence.High;
+        if (score == 2) return OfferConfidence.Medium;
+        if (score == 1) return OfferConfidence.Low;
+        return OfferConfidence.None;
+    }
 
-        bool hasIntent = Regex.IsMatch(lowered,
-            @"(i('| a)m|i will|i'd|i can|offer|give|take|buy)");
 
-        bool hasQuestion = lowered.Contains("?");
+    // Helper Functions
+    static List<float> ExtractRanges(string input)
+    {
+        // 
+        var ranges = new List<float>();
 
-        if (hasIntent && !hasQuestion) return OfferConfidence.High;
+        // Matches: "200-300", "200 to 300", "between 200 and 300"
+        var matches = Regex.Matches(input.ToLower(),
+            @"(\d+)\s*(\-|to|and)\s*(\d+)");
 
-        if (hasIntent && hasQuestion) return OfferConfidence.Medium;
+        foreach (Match match in matches)
+        {
+            float a = float.Parse(match.Groups[1].Value);
+            float b = float.Parse(match.Groups[3].Value);
 
-        return OfferConfidence.Low;
+            // Assume player leans toward the higher number
+            ranges.Add(Math.Max(a, b));
+        }
+
+        return ranges;
     }
 }

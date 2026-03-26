@@ -29,6 +29,7 @@ namespace LLM_Handler
         #endregion
         
         private AiResponseParser _aiParser;
+        public ChatManager chatManager;
 
         private void Awake()
         {
@@ -84,6 +85,11 @@ namespace LLM_Handler
             _aiIntent.text = "AI Intent: " + _aiParser.ai_intent;
             
             Debug.Log(reply);
+
+            if (chatManager != null)
+            {
+                chatManager.ReceiveAIMessage(reply);
+            }
         }
 
         string GetPlayerInputPrompt(string offerValue, string confidenceLevel)

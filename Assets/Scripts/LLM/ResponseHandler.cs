@@ -24,7 +24,6 @@ namespace LLM_Handler
         // Temporary Variables
         int _offersMade = 0;
         float _currentAIAskingPrice;
-        float _minimumItemPrice;
         float _lastDiscussedPrice;
         #endregion
         
@@ -38,7 +37,6 @@ namespace LLM_Handler
             _aiParser = new AiResponseParser();
 
             _currentAIAskingPrice = _item.ItemBasePrice * 1.5f;
-            _minimumItemPrice = _item.ItemBasePrice + 50;
         }
 
         public void SendResponse(Button sendButton)
@@ -83,7 +81,8 @@ namespace LLM_Handler
 
             _aiMessage.text = _aiParser.ParseResponse(reply);
             _aiIntent.text = "AI Intent: " + _aiParser.ai_intent;
-            
+            _currentAIAskingPrice = _aiParser.asking_price;
+
             Debug.Log(reply);
 
             if (chatManager != null)
@@ -100,9 +99,10 @@ namespace LLM_Handler
             player_input_prompt += $"Player Offer: {offerValue}\r\n"; 
             player_input_prompt += $"Offer Confidence: {confidenceLevel}\r\n"; 
             player_input_prompt += $"Last Discussed Price: {_lastDiscussedPrice}\r\n";
-            player_input_prompt += $"Player Tone: {"Neutral"}\r\n\r\n"; // Change to be the actual tone
+            //player_input_prompt += $"Player Tone: {"Neutral"}\r\n\r\n"; // Change to be the actual tone
 
-            return player_input_prompt;
+
+            return player_input_prompt + "\r\n";
         }
 
         string GetCurrentItemState()
@@ -111,11 +111,10 @@ namespace LLM_Handler
 
             item_state_prompt += $"Item: {_item.ItemName}\r\n";
             item_state_prompt += $"Item Description: {_item.ItemDescription}\r\n";
-            item_state_prompt += $"Base Price: {_item.ItemBasePrice}\r\n";
-            item_state_prompt += $"Minimum Price: {_minimumItemPrice}\r\n";
+            item_state_prompt += $"Minimum Price: {_item.ItemBasePrice}\r\n";
             item_state_prompt += $"Current Asking Price: {_currentAIAskingPrice}\r\n";
             item_state_prompt += $"Number of offers made so far: {_offersMade}\r\n";
-            item_state_prompt += $"Player Behavior: {"Neutral"}\r\n\r\n"; // change to be aggressive (many low offers) | passive
+            //item_state_prompt += $"Player Behavior: {"Neutral"}\r\n\r\n"; // change to be aggressive (many low offers) | passive
 
             return item_state_prompt;
         }

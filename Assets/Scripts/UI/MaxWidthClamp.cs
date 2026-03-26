@@ -15,13 +15,20 @@ public class MaxWidthClamp : MonoBehaviour
     {
         textMesh = GetComponent<TextMeshProUGUI>();
         layoutElement = GetComponent<LayoutElement>();
+
+        ClampWidth();
     }
 
     void LateUpdate()
     {
+        ClampWidth();
+    }
+
+    void ClampWidth()
+    {
         if (textMesh == null || layoutElement == null) return;
 
-        
+
         if (textMesh.preferredWidth > maxWidth)
         {
             if (layoutElement.preferredWidth != maxWidth) layoutElement.preferredWidth = maxWidth;

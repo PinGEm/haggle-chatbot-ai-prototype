@@ -10,13 +10,15 @@ namespace LLM_Handler
 
         public string ParseResponse(string input)
         {
+            Debug.Log(input);
+
             AIResponseData responseData = JsonUtility.FromJson<AIResponseData>(input);
 
             Debug.Log("ai_message: " + responseData.ai_message);
             Debug.Log("ai_intent: " + responseData.intent);
             Debug.Log("price: " + responseData.price);
             Debug.Log("emotion: " + responseData.emotion);
-            Debug.Log("reasoning: " + responseData.reasoning);
+            Debug.Log("reasoning: " + responseData.reason);
             Debug.Log("memory fact: " + responseData.memory_fact);
 
             ai_intent = responseData.intent;
@@ -32,7 +34,7 @@ namespace LLM_Handler
         public string intent;
         public int price;
         public string emotion;
-        public string reasoning;
+        public string reason;
         public string memory_fact;
     }
 }

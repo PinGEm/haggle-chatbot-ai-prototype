@@ -1684,7 +1684,8 @@ MonoBehaviour:
   contentContainer: {fileID: 2093780288}
   chatScrollRect: {fileID: 2137237971}
   playerMessagePrefab: {fileID: 5188787895582566202, guid: 83314c6612e2226499b5646d4a9a5f4f, type: 3}
-  aiMessagePrefab: {fileID: 6641481222747685267, guid: 6d61f90fb0e2c4a46bc40794c0e56627, type: 3}
+  aiMessagePrefab: {fileID: 8078562051023911415, guid: 98fc93213f9c4124b9aa0274161d6483, type: 3}
+  typingIndicatorPrefab: {fileID: 8078562051023911415, guid: 33e49c7d721b8af46adfb0e59ead758f, type: 3}
 --- !u!4 &916685339
 Transform:
   m_ObjectHideFlags: 0

@@ -24,7 +24,7 @@ public class MaxWidthClamp : MonoBehaviour
         ClampWidth();
     }
 
-    void ClampWidth()
+    public void ClampWidth()
     {
         if (textMesh == null || layoutElement == null) return;
 

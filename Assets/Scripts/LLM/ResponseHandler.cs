@@ -79,7 +79,7 @@ namespace LLM_Handler
             
             sendButton.interactable = true;
 
-            _aiMessage.text = _aiParser.ParseResponse(reply);
+            _aiParser.ParseResponse(reply);
             _aiIntent.text = "AI Intent: " + _aiParser.ai_intent;
             _currentAIAskingPrice = _aiParser.asking_price;
 

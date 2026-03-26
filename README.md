@@ -19,6 +19,6 @@
 3) Open the Unity Project
 4) Wait for LlamaLib-v2.0.5 to fully download (To track your current progress, refer to step 5)
 5) In the Hierarchy Tab, look and click on the "LLM Model" game object
-6) In the Inspect Tab, click "Download Model" -> Tiny Models -> Llama 3.2 1B
+6) In the Inspect Tab, click "Download Model" -> Tiny Models -> Qwen 3.5 2B
 
 <h1>You're finished! Have fun editing the project</h1>

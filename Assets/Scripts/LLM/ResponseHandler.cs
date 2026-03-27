@@ -5,11 +5,23 @@ using TMPro;
 using LLMAgent = LLMUnity.LLMAgent;
 using static UnityEngine.Audio.ProcessorInstance;
 using System;
+using System.Net.Security;
 
 namespace LLM_Handler
 {
     public class ResponseHandler : MonoBehaviour
     {
+        enum NegotiationState
+        {
+            // Most probably gonna be moved somewhere else
+            negotiation,
+            accept,
+            reject,
+            counteroffer
+        }
+
+        private NegotiationState _negotiationState;
+
         [SerializeField] private LLMAgent _llmAgent;
         [SerializeField] private TMP_InputField _messageField;
 
@@ -71,16 +83,16 @@ namespace LLM_Handler
 
             string confidenceLevel = result.Confidence.ToString().ToLower();
 
-            if (_aiParser.asking_price == 0)
-            {
-                _aiParser.asking_price = (int)_item.ItemBasePrice;
-            }
+            _negotiationState = DetermineIntent(offerValue_numerical, _currentAIAskingPrice);
+            _aiParser.actual_intent = _negotiationState.ToString();
 
-            _aiParser.actual_intent = DetermineIntent(offerValue_numerical, _aiParser.asking_price); // in the future, pass intent to influence the ai's reponse
+
+            float newAIPrice = DetermineNewAIPrice(_currentAIAskingPrice, offerValue_numerical);
+            Debug.Log("System Determined Price: " + newAIPrice);
 
             string fullPrompt = $"You are currently selling an item to the player. \r\n\r\n" + 
                 GetPlayerInputPrompt(offerValue, confidenceLevel) + GetCurrentItemState() + GetMemoryFacts() +
-                $"IMPORTANT:\r\n- You MUST follow the game's determined intent. The system has determined the intent to be: {_aiParser.actual_intent}.\r\n-Please remember to follow the personality, speech rules, game rules and ONLY respond in the given JSON format";
+                $"IMPORTANT:\r\n- You MUST follow the game's determined intent and price.\r\n-System Determined intent: {_aiParser.actual_intent}.\r\n-System Determined price: {newAIPrice}\r\n-Please remember to follow the behavior guidelines, personality, speech rules, offer interpretation rules, and game rules and ONLY respond in the given JSON format";
 
             Debug.Log(fullPrompt);
 
@@ -91,7 +103,8 @@ namespace LLM_Handler
 
             // Parse Response to JSON
             _aiParser.ParseResponse(reply);
-            _currentAIAskingPrice = Mathf.Max(_aiParser.asking_price, _item.ItemBasePrice);
+            _currentAIAskingPrice = newAIPrice;
+            _currentAIAskingPrice = Mathf.Max(_currentAIAskingPrice, _item.ItemBasePrice);
             _aiIntent.text = "AI Intent: " + _aiParser.actual_intent;
 
             Debug.Log(reply);
@@ -168,25 +181,92 @@ namespace LLM_Handler
             return memory_facts_prompt;
         }
 
-        string DetermineIntent(float? playerOffer, float aiPrice)
+        NegotiationState DetermineIntent(float? playerOffer, float aiPrice)
         {
-            if (!playerOffer.HasValue) return "negotiation";
+            // Note:
+            // There should probably be a way for the AI to ACCEPT the Player's offer.
+            // This function should probably also handle that
 
-            if (aiPrice == playerOffer.Value) return "accept";
+            if (!playerOffer.HasValue) return NegotiationState.negotiation;
 
-            if (_offersMade >= MAXIMUM_OFFERS) return "reject";
+            if (aiPrice == playerOffer.Value) return NegotiationState.accept;
+
+            if (_offersMade >= MAXIMUM_OFFERS) return NegotiationState.reject;
 
             if (playerOffer < _item.ItemBasePrice)
             {
                 if (_offersMade < 3)
                 {
-                    return "counteroffer";
+                    return NegotiationState.counteroffer;
                 }
 
-                return "reject";
+                return NegotiationState.reject;
             } 
 
-            return "counteroffer";
+            // Assume counter offer
+            return NegotiationState.counteroffer;
+        }
+
+        private float DetermineNewAIPrice(float currentAIPrice, float? currentPlayerPrice)
+        {
+            switch (_negotiationState)
+            {
+                case NegotiationState.counteroffer:
+                    // Note: Implementation price reaction to things like
+                    // patience meter, and behavior reactions should be implemented when possible
+
+                    float newPrice = currentAIPrice;
+
+                    if (currentPlayerPrice.HasValue)
+                    {
+                        newPrice = (float)(currentAIPrice + currentPlayerPrice + (  (currentAIPrice - currentPlayerPrice ) * _aiPersona.PricePrefs) ) / 2;
+
+                        newPrice = GetRoundedPrice(newPrice);
+                    }
+
+                    // Price Variation
+                    int variation = UnityEngine.Random.Range(1,7);
+                    
+                    switch (variation)
+                    {
+                        case 1: newPrice += 5; break;
+                        case 2: newPrice += 10; break;
+                        case 3: newPrice -= 5; break;
+                        case 4: newPrice -= 10; break;
+                        case 5: newPrice += 0; break;
+                        case 6: newPrice -= 0; break;
+                    }
+
+                    newPrice = Mathf.Clamp(newPrice, _item.ItemBasePrice + 10, _currentAIAskingPrice - 10);
+                    
+                    return newPrice;
+                default:
+                    // If the state is: Accept, Reject, Negotiation;
+                    // Make the AI stand on business
+
+                    return currentAIPrice;
+            }
+        }
+
+
+        // Helper Function
+
+        float GetRoundedPrice(float value)
+        {
+            // Round the price to the nearest multiple of 5 or 10 (e.g: 212 -> 210)
+            float nearestFifthMultiple = (float)Math.Round(value / 5) * 5;
+            float nearestTenthMultiple = (float)Math.Round(value / 10) * 10;
+
+            float dist_5 = Math.Abs(value - nearestFifthMultiple);
+            float dist_10 = Math.Abs(value - nearestTenthMultiple);
+
+            if (dist_5 < dist_10) return nearestFifthMultiple;
+            else if (dist_5 > dist_10) return nearestTenthMultiple;
+            else
+            {
+                if (_aiPersona.PricePrefs >= 0.5) return Math.Max(nearestTenthMultiple, nearestFifthMultiple);
+                else return Math.Min(nearestTenthMultiple,nearestFifthMultiple);
+            }
         }
     }
 }

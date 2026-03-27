@@ -6,6 +6,7 @@ using LLMAgent = LLMUnity.LLMAgent;
 using static UnityEngine.Audio.ProcessorInstance;
 using System;
 using System.Net.Security;
+using System.Text.RegularExpressions;
 
 namespace LLM_Handler
 {
@@ -86,7 +87,6 @@ namespace LLM_Handler
             _negotiationState = DetermineIntent(offerValue_numerical, _currentAIAskingPrice);
             _aiParser.actual_intent = _negotiationState.ToString();
 
-
             float newAIPrice = DetermineNewAIPrice(_currentAIAskingPrice, offerValue_numerical);
             Debug.Log("System Determined Price: " + newAIPrice);
 
@@ -100,6 +100,30 @@ namespace LLM_Handler
             string reply = await _llmAgent.Chat(fullPrompt);
             
             sendButton.interactable = true;
+
+
+            // Validate AI Response
+            bool valid = AIOutputValidator.ValidatePrice(reply, _aiParser.actual_intent, (int)newAIPrice)
+             && AIOutputValidator.ForbidMinimumPrice(reply);
+
+            if (!valid)
+            {
+                Debug.Log("AI Response not Valid!");
+
+                // Correct ai_message if numeric price is missing
+                if (!AIOutputValidator.ValidatePrice(reply, _aiParser.actual_intent, (int)newAIPrice))
+                {
+                    // Insert the system-determined price
+                    reply = $"My lowest is {newAIPrice}.";
+                }
+
+                // Correct ai_message if minimum price is mentioned
+                if (!AIOutputValidator.ForbidMinimumPrice(reply))
+                {
+                    reply = reply.Replace("minimum price", "");
+                }
+            }
+
 
             // Parse Response to JSON
             _aiParser.ParseResponse(reply);

@@ -12,8 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e954abf6a60578342b0e98cbb8a5c730, type: 3}
   m_Name: Cat
   m_EditorClassIdentifier: Assembly-CSharp::ItemScriptableObject
-  m_itemImage: {fileID: 0}
-  m_itemName: 
-  m_itemDescription: 
-  m_itemDetails: []
-  m_itemBasePrice: 0
+  m_itemImage: {fileID: 2800000, guid: 8f8983664f49eeb4f896cde865ed8e13, type: 3}
+  m_itemName: Cat
+  m_itemDescription: Just a regular old orange cat
+  m_itemDetails:
+  - A little shy at first, but cuddly when you get to know him
+  - 'Striking appearance, with sleek and comfy fur '
+  - Enjoys sitting on valuable items
+  - Extremely adorable and cute cat
+  m_itemBasePrice: 450

@@ -10,10 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e954abf6a60578342b0e98cbb8a5c730, type: 3}
-  m_Name: Teddy_Bear
+  m_Name: Dragon_Egg
   m_EditorClassIdentifier: Assembly-CSharp::ItemScriptableObject
-  m_itemImage: {fileID: 0}
-  m_itemName: 
-  m_itemDescription: 
-  m_itemDetails: []
-  m_itemBasePrice: 0
+  m_itemImage: {fileID: 2800000, guid: e7abde12f0f0e674eb2a629278c101e5, type: 3}
+  m_itemName: Dragon Egg
+  m_itemDescription: A large smooth egg, encased with a vibrant and warm shell
+  m_itemDetails:
+  - The shell faintly glows in darkness
+  - 'Emits low vibrations when near it '
+  - Supposedly a gift from God
+  - Possession of this egg might be a curse
+  m_itemBasePrice: 1500

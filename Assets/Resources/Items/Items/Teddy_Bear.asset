@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e954abf6a60578342b0e98cbb8a5c730, type: 3}
-  m_Name: Book
+  m_Name: Teddy_Bear
   m_EditorClassIdentifier: Assembly-CSharp::ItemScriptableObject
-  m_itemImage: {fileID: 0}
-  m_itemName: 
-  m_itemDescription: 
-  m_itemDetails: []
-  m_itemBasePrice: 0
+  m_itemImage: {fileID: 2800000, guid: 4c8b6e30170cd90489fbe7bbd8384ea4, type: 3}
+  m_itemName: Teddy Bear
+  m_itemDescription: 'A soft to the touch, warm blue bear! '
+  m_itemDetails:
+  - Could potentially be a living creature
+  - Really cuddly to hug!
+  - Makes all kids near it really happy
+  m_itemBasePrice: 300

@@ -1,8 +1,12 @@
+using LLMUnity;
+using UndreamAI.LlamaLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MenuNavigation : MonoBehaviour
 {
+    [SerializeField] private LLMUnity.LLMAgent _llmAgent;
+
     public void NextMenu(GameObject menuUI)
     {
         this.gameObject.SetActive(false);
@@ -20,6 +24,7 @@ public class MenuNavigation : MonoBehaviour
 
     public void MainMenuScene()
     {
+        _llmAgent.CancelRequests();
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 

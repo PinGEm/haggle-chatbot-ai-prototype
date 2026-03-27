@@ -34,7 +34,6 @@ namespace LLM_Handler
         [SerializeField] private TMP_Text _aiIntent;
 
         // Temporary Scriptable Objects
-        public ItemScriptableObject _item;
         public PersonalityScriptableObject _aiPersona;
 
         // Temporary Variables
@@ -42,17 +41,27 @@ namespace LLM_Handler
         float _currentAIAskingPrice;
         float _lastDiscussedPrice;
         #endregion
-        
-        private AiResponseParser _aiParser;
+
+
+        #region Manager Classes
         public ChatManager chatManager;
+        private ItemManager _itemManager;
+        #endregion
+
+        private AiResponseParser _aiParser;
 
         private void Awake()
         {
             _aiPersona.InitializePrompt();
 
             _aiParser = new AiResponseParser();
+        }
 
-            _currentAIAskingPrice = _item.ItemBasePrice * 1.5f;
+        private void Start()
+        {
+            _itemManager = GameManager.Instance.itemManager;
+
+            _currentAIAskingPrice = _itemManager.SelectedItem.ItemBasePrice * 1.5f;
         }
 
         public void SendResponse(Button sendButton)
@@ -128,7 +137,7 @@ namespace LLM_Handler
             // Parse Response to JSON
             _aiParser.ParseResponse(reply);
             _currentAIAskingPrice = newAIPrice;
-            _currentAIAskingPrice = Mathf.Max(_currentAIAskingPrice, _item.ItemBasePrice);
+            _currentAIAskingPrice = Mathf.Max(_currentAIAskingPrice, _itemManager.SelectedItem.ItemBasePrice);
             _aiIntent.text = "AI Intent: " + _aiParser.actual_intent;
 
             Debug.Log(reply);
@@ -159,16 +168,16 @@ namespace LLM_Handler
         {
             string item_state_prompt = "=== CURRENT ITEM STATE ===\r\n";
 
-            item_state_prompt += $"Item: {_item.ItemName}\r\n";
-            item_state_prompt += $"Item Description: {_item.ItemDescription}\r\n";
+            item_state_prompt += $"Item: {_itemManager.SelectedItem.ItemName}\r\n";
+            item_state_prompt += $"Item Description: {_itemManager.SelectedItem.ItemDescription}\r\n";
 
             item_state_prompt += "Item Details:\r\n";
-            foreach (string item_detail in _item.ItemDetails)
+            foreach (string item_detail in _itemManager.SelectedItem.ItemDetails)
             {
                 item_state_prompt += "- " + item_detail + "\r\n";
             }
 
-            item_state_prompt += $"Minimum Price: {_item.ItemBasePrice}\r\n";
+            item_state_prompt += $"Minimum Price: {_itemManager.SelectedItem.ItemBasePrice}\r\n";
             item_state_prompt += $"Current Asking Price: {_currentAIAskingPrice}\r\n";
             item_state_prompt += $"Number of offers made so far: {_offersMade}\r\n";
             //item_state_prompt += $"Player Behavior: {"Neutral"}\r\n\r\n"; // change to be aggressive (many low offers) | passive
@@ -217,7 +226,7 @@ namespace LLM_Handler
 
             if (_offersMade >= MAXIMUM_OFFERS) return NegotiationState.reject;
 
-            if (playerOffer < _item.ItemBasePrice)
+            if (playerOffer < _itemManager.SelectedItem.ItemBasePrice)
             {
                 if (_offersMade < 3)
                 {
@@ -261,7 +270,7 @@ namespace LLM_Handler
                         case 6: newPrice -= 0; break;
                     }
 
-                    newPrice = Mathf.Clamp(newPrice, _item.ItemBasePrice + 10, _currentAIAskingPrice - 10);
+                    newPrice = Mathf.Clamp(newPrice, _itemManager.SelectedItem.ItemBasePrice + 10, _currentAIAskingPrice - 10);
                     
                     return newPrice;
                 default:

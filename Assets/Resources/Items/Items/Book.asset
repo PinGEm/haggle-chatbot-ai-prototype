@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e954abf6a60578342b0e98cbb8a5c730, type: 3}
-  m_Name: Dragon_Egg
+  m_Name: Book
   m_EditorClassIdentifier: Assembly-CSharp::ItemScriptableObject
-  m_itemImage: {fileID: 2800000, guid: e7abde12f0f0e674eb2a629278c101e5, type: 3}
-  m_itemName: 
-  m_itemDescription: 
-  m_itemDetails: []
-  m_itemBasePrice: 0
+  m_itemImage: {fileID: 2800000, guid: 2e9841125a403f34a86676624ab291c5, type: 3}
+  m_itemName: Book
+  m_itemDescription: A book about... "top 67 ways to be brainrot??"
+  m_itemDetails:
+  - 'A slightly used book with worn-out edges '
+  - 'Leather-bound '
+  - Made by George R. R. Martin
+  m_itemBasePrice: 150

@@ -20,3 +20,4 @@ MonoBehaviour:
   - Really cuddly to hug!
   - Makes all kids near it really happy
   m_itemBasePrice: 300
+  m_itemBaseAskPrice: 400

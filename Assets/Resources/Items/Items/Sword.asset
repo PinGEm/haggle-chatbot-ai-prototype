@@ -21,3 +21,4 @@ MonoBehaviour:
   - Shows minimal wear even after years of use
   - Easy to maintain
   m_itemBasePrice: 200
+  m_itemBaseAskPrice: 300

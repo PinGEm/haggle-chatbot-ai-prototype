@@ -4,11 +4,13 @@ public class GameManager : MonoBehaviour
 {
     [Header("Manager Prefabs")]
     [SerializeField] private GameObject _itemManagerPrefab;
+    [SerializeField] private GameObject _aiManagerPrefab;
     public static GameManager Instance { get; private set; }
 
 
     // Getters
     public ItemManager itemManager { get; private set; }
+    public AIPersonaManager aiManager { get; private set; }
 
     private void Awake()
     {
@@ -22,6 +24,7 @@ public class GameManager : MonoBehaviour
         }
 
         itemManager = SpawnManagerIfMissing<ItemManager>(_itemManagerPrefab);
+        aiManager = SpawnManagerIfMissing<AIPersonaManager>(_aiManagerPrefab);
     }
 
     private T SpawnManagerIfMissing<T>(GameObject manager_prefab) where T : MonoBehaviour

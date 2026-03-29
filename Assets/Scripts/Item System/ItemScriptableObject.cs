@@ -9,8 +9,11 @@ public class ItemScriptableObject : ScriptableObject
     [SerializeField] private string m_itemName;
     [SerializeField] private string m_itemDescription;
     [SerializeField] private string[] m_itemDetails;
-    
+
+
+    [Header("Price Details")]
     [SerializeField] private float m_itemBasePrice;
+    [SerializeField] private float m_itemBaseAskPrice;
 
 
     public Texture2D ItemImage { get { return m_itemImage; } }
@@ -18,6 +21,7 @@ public class ItemScriptableObject : ScriptableObject
     public string ItemDescription { get { return m_itemDescription; } }
     public string[] ItemDetails { get { return m_itemDetails; } }
     public float ItemBasePrice { get { return m_itemBasePrice; } }
+    public float ItemBaseAskPrice { get { return m_itemBaseAskPrice; } }
 
 
     private int _itemID;

@@ -20,3 +20,4 @@ MonoBehaviour:
   - 'Leather-bound '
   - Made by George R. R. Martin
   m_itemBasePrice: 150
+  m_itemBaseAskPrice: 250

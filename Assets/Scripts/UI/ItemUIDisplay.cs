@@ -4,7 +4,7 @@ using TMPro; // Needed for TextMeshProUGUI
 
 public class ItemUIDisplay : MonoBehaviour
 {
-    [Header("Your 4 UI Components")]
+    [Header("UI Components")]
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private TextMeshProUGUI detailsText;
@@ -35,7 +35,7 @@ public class ItemUIDisplay : MonoBehaviour
         {
             if (currentItem.ItemDetails != null && currentItem.ItemDetails.Length > 0)
             {
-                detailsText.text = string.Join("\n", currentItem.ItemDetails);
+                detailsText.text = string.Join("\n- ", currentItem.ItemDetails);
             }
             else
             {

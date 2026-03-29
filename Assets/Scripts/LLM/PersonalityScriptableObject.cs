@@ -28,12 +28,23 @@ public class PersonalityScriptableObject : ScriptableObject
 
     [SerializeField] private string[] m_speechStyles;
 
+    public string PersonalityDescription { get { return m_personalityDescription; } }
+    public string [] PersonalityTraits { get { return m_personalityTraits; } }
+    public string [] SpeechStyles { get { return m_speechStyles; } }
+
+
+    [Header("Price Setter")]
+    [Range(1.2f, 2.0f)] private float _askingPriceRate = 1.5f;
+    [Range(0.2f, 0.6f)] private float _askingRateVariation = 0.3f;
 
     [Header("Price Affectors")]
     [Range(0.0f, 1.0f)] private float _priceCutThreshold = 0.5f; // Price Threshold to determine if AI should counteroffer
     [Range(0.2f, 1.0f)] private float _pricePrefs = 0.2f; // Used to determine how much the NPC prefers their own price compared to player
 
 
+
+    public float AskingPriceRate { get { return _askingPriceRate; } }
+    public float AskingRateVariation { get { return _askingRateVariation; } }
 
     public float PricePrefs { get { return _pricePrefs; } }
     public float PriceCutThreshold {  get { return _priceCutThreshold; } }

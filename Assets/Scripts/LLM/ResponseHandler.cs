@@ -33,9 +33,6 @@ namespace LLM_Handler
         #region Temporary Variables
         [SerializeField] private TMP_Text _aiIntent;
 
-        // Temporary Scriptable Objects
-        public PersonalityScriptableObject _aiPersona;
-
         // Temporary Variables
         int _offersMade = 0;
         float _currentAIAskingPrice;
@@ -46,22 +43,25 @@ namespace LLM_Handler
         #region Manager Classes
         public ChatManager chatManager;
         private ItemManager _itemManager;
+        private AIPersonaManager _personaManager;
         #endregion
 
         private AiResponseParser _aiParser;
 
-        private void Awake()
-        {
-            _aiPersona.InitializePrompt();
-
-            _aiParser = new AiResponseParser();
-        }
-
         private void Start()
         {
+            // Persona Manager
+            _personaManager = GameManager.Instance.aiManager;
+
+            _personaManager.SelectedPersona.InitializePrompt();
+
+            _aiParser = new AiResponseParser();
+
+            // Item Manager
             _itemManager = GameManager.Instance.itemManager;
 
-            _currentAIAskingPrice = _itemManager.SelectedItem.ItemBasePrice * 1.5f;
+            _currentAIAskingPrice = Math.Max( (_itemManager.SelectedItem.ItemBaseAskPrice * 
+                (_personaManager.SelectedPersona.AskingPriceRate + (UnityEngine.Random.Range(-_personaManager.SelectedPersona.AskingRateVariation, _personaManager.SelectedPersona.AskingRateVariation) ) ) ), _itemManager.SelectedItem.ItemBaseAskPrice);
         }
 
         public void SendResponse(Button sendButton)
@@ -99,7 +99,7 @@ namespace LLM_Handler
             float newAIPrice = DetermineNewAIPrice(_currentAIAskingPrice, offerValue_numerical);
             Debug.Log("System Determined Price: " + newAIPrice);
 
-            string fullPrompt = $"You are currently selling an item to the player. \r\n\r\n" + 
+            string fullPrompt = $"You are currently *SELLING* an item to the player. \r\n\r\n" + 
                 GetPlayerInputPrompt(offerValue, confidenceLevel) + GetCurrentItemState() + GetMemoryFacts() +
                 $"IMPORTANT:\r\n- You MUST follow the game's determined intent and price.\r\n-System Determined intent: {_aiParser.actual_intent}.\r\n-System Determined price: {newAIPrice}\r\n-Please remember to follow the behavior guidelines, personality, speech rules, offer interpretation rules, and game rules and ONLY respond in the given JSON format";
 
@@ -118,12 +118,13 @@ namespace LLM_Handler
             if (!valid)
             {
                 Debug.Log("AI Response not Valid!");
+                Debug.Log($"Original AI Response:\r\n {reply}");
 
                 // Correct ai_message if numeric price is missing
                 if (!AIOutputValidator.ValidatePrice(reply, _aiParser.actual_intent, (int)newAIPrice))
                 {
-                    // Insert the system-determined price
-                    reply = $"My lowest is {newAIPrice}.";
+                    // Change it into the new numeric price in a future update
+                    // reply = $"I'm only going to sell this for {newAIPrice}.";
                 }
 
                 // Correct ai_message if minimum price is mentioned
@@ -252,7 +253,7 @@ namespace LLM_Handler
 
                     if (currentPlayerPrice.HasValue)
                     {
-                        newPrice = (float)(currentAIPrice + currentPlayerPrice + (  (currentAIPrice - currentPlayerPrice ) * _aiPersona.PricePrefs) ) / 2;
+                        newPrice = (float)(currentAIPrice + currentPlayerPrice + (  (currentAIPrice - currentPlayerPrice ) * _personaManager.SelectedPersona.PricePrefs) ) / 2;
 
                         newPrice = GetRoundedPrice(newPrice);
                     }
@@ -297,7 +298,7 @@ namespace LLM_Handler
             else if (dist_5 > dist_10) return nearestTenthMultiple;
             else
             {
-                if (_aiPersona.PricePrefs >= 0.5) return Math.Max(nearestTenthMultiple, nearestFifthMultiple);
+                if (_personaManager.SelectedPersona.PricePrefs >= 0.5) return Math.Max(nearestTenthMultiple, nearestFifthMultiple);
                 else return Math.Min(nearestTenthMultiple,nearestFifthMultiple);
             }
         }

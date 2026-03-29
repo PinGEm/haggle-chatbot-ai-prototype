@@ -21,3 +21,4 @@ MonoBehaviour:
   - 'Condition: Brand new'
   - Hand-finished by renowned artisans
   m_itemBasePrice: 999
+  m_itemBaseAskPrice: 1300

@@ -25,6 +25,25 @@ public class GameManager : MonoBehaviour
 
         itemManager = SpawnManagerIfMissing<ItemManager>(_itemManagerPrefab);
         aiManager = SpawnManagerIfMissing<AIPersonaManager>(_aiManagerPrefab);
+
+        //aiManager.SetStartingPrice();
+    }
+
+    void Start()
+    {
+        InitializeGame();
+    }
+
+    void InitializeGame()
+    {
+
+        aiManager.SetStartingPrice();
+
+        var ui = FindAnyObjectByType<ItemUIDisplay>();
+        if (ui != null)
+        {
+            ui.UpdateItemDisplay();
+        }
     }
 
     private T SpawnManagerIfMissing<T>(GameObject manager_prefab) where T : MonoBehaviour

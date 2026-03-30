@@ -59,9 +59,7 @@ namespace LLM_Handler
 
             // Item Manager
             _itemManager = GameManager.Instance.itemManager;
-
-            _currentAIAskingPrice = Math.Max( (_itemManager.SelectedItem.ItemBaseAskPrice * 
-                (_personaManager.SelectedPersona.AskingPriceRate + (UnityEngine.Random.Range(-_personaManager.SelectedPersona.AskingRateVariation, _personaManager.SelectedPersona.AskingRateVariation) ) ) ), _itemManager.SelectedItem.ItemBaseAskPrice);
+            _currentAIAskingPrice = GameManager.Instance.aiManager.StartingAIAskingPrice;
         }
 
         public void SendResponse(Button sendButton)
@@ -178,7 +176,6 @@ namespace LLM_Handler
                 item_state_prompt += "- " + item_detail + "\r\n";
             }
 
-            item_state_prompt += $"Minimum Price: {_itemManager.SelectedItem.ItemBasePrice}\r\n";
             item_state_prompt += $"Current Asking Price: {_currentAIAskingPrice}\r\n";
             item_state_prompt += $"Number of offers made so far: {_offersMade}\r\n";
             //item_state_prompt += $"Player Behavior: {"Neutral"}\r\n\r\n"; // change to be aggressive (many low offers) | passive

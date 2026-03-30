@@ -45,3 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _itemManagerPrefab: {fileID: 395222033936782465, guid: cec94589f398a8146a7a4277e569eccf, type: 3}
+  _aiManagerPrefab: {fileID: 3481834761291180136, guid: b496bf1919928d248a326cf153fb5986, type: 3}

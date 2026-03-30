@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -9,11 +10,16 @@ public class AIPersonaManager : MonoBehaviour
 {
     private PersonalityScriptableObject[] _aiPersonas;
     private PersonalityScriptableObject _selectedPersona;
+    private int _startingAIAskingPrice;
 
+    public int StartingAIAskingPrice { get { return _startingAIAskingPrice; } }
     public PersonalityScriptableObject SelectedPersona { get { return _selectedPersona; } }
 
     [SerializeField] private TextMeshProUGUI _nameLabel;
     bool _personaCheck = true;
+
+    private ItemManager _itemManager;
+
 
     void Awake()
     {
@@ -55,7 +61,15 @@ public class AIPersonaManager : MonoBehaviour
 
         Debug.Log(personaList);
 
-        int randIndex = Random.Range(0, _aiPersonas.Length);
+        int randIndex = UnityEngine.Random.Range(0, _aiPersonas.Length);
         _selectedPersona = _aiPersonas[randIndex];
     }
+
+    public void SetStartingPrice()
+    {
+        _itemManager = GameManager.Instance.itemManager;
+
+        _startingAIAskingPrice = Math.Max((int)(_itemManager.SelectedItem.ItemBaseAskPrice *
+               (SelectedPersona.AskingPriceRate + (UnityEngine.Random.Range(-SelectedPersona.AskingRateVariation, SelectedPersona.AskingRateVariation)))), (int)(_itemManager.SelectedItem.ItemBaseAskPrice));
+    } 
 }

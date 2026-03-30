@@ -8,13 +8,9 @@ public class ItemUIDisplay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private TextMeshProUGUI detailsText;
+    [SerializeField] private TextMeshProUGUI priceText;
     [SerializeField] private RawImage itemRawImage;
 
-    void Start()
-    {
-        // Wait for GameManager to wake up and pick the item, then update the UI
-        UpdateItemDisplay();
-    }
 
     public void UpdateItemDisplay()
     {
@@ -27,6 +23,7 @@ public class ItemUIDisplay : MonoBehaviour
 
         // 3. Paste the data directly into your 4 UI slots exactly as they are
         if (nameText != null) nameText.text = currentItem.ItemName;
+        if (priceText != null) priceText.text = "$" + GameManager.Instance.aiManager.StartingAIAskingPrice.ToString();
         if (descriptionText != null) descriptionText.text = currentItem.ItemDescription;
         if (itemRawImage != null) itemRawImage.texture = currentItem.ItemImage;
 

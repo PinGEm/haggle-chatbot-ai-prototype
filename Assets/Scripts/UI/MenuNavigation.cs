@@ -20,6 +20,13 @@ public class MenuNavigation : MonoBehaviour
     public void PlayScene()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("InitialPrototypeScene");
+        Debug.Log("Hi");
+    }
+
+    public void PcScene()
+    {
+        _llmAgent.CancelRequests();
+        UnityEngine.SceneManagement.SceneManager.LoadScene("DraftUIMainMenu");
     }
 
     public void MainMenuScene()

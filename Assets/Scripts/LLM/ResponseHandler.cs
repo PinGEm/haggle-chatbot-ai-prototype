@@ -3,10 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 using LLMAgent = LLMUnity.LLMAgent;
-using static UnityEngine.Audio.ProcessorInstance;
 using System;
-using System.Net.Security;
-using System.Text.RegularExpressions;
 
 namespace LLM_Handler
 {
@@ -32,6 +29,7 @@ namespace LLM_Handler
 
         #region Temporary Variables
         [SerializeField] private TMP_Text _aiIntent;
+        [SerializeField] private ResultPage _resultScript;
 
         // Temporary Variables
         int _offersMade = 0;
@@ -92,9 +90,16 @@ namespace LLM_Handler
             string confidenceLevel = result.Confidence.ToString().ToLower();
 
             _negotiationState = DetermineIntent(offerValue_numerical, _currentAIAskingPrice);
-            _aiParser.actual_intent = _negotiationState.ToString();
 
             float newAIPrice = DetermineNewAIPrice(_currentAIAskingPrice, offerValue_numerical);
+            
+            if (newAIPrice < offerValue_numerical)
+            {
+                newAIPrice = (float)offerValue_numerical;
+                _negotiationState = NegotiationState.accept;
+            }
+
+            _aiParser.actual_intent = _negotiationState.ToString();
             Debug.Log("System Determined Price: " + newAIPrice);
 
             string fullPrompt = $"You are currently *SELLING* an item to the player. \r\n\r\n" + 
@@ -109,11 +114,15 @@ namespace LLM_Handler
             sendButton.interactable = true;
 
 
+            // Parse Response to JSON
+            _aiParser.ParseResponse(reply);
+
+
             // Validate AI Response
             bool valid = AIOutputValidator.ValidatePrice(reply, _aiParser.actual_intent, (int)newAIPrice)
              && AIOutputValidator.ForbidMinimumPrice(reply);
 
-            if (!valid)
+            if (!valid && _negotiationState != NegotiationState.accept)
             {
                 Debug.Log("AI Response not Valid!");
                 Debug.Log($"Original AI Response:\r\n {reply}");
@@ -121,8 +130,8 @@ namespace LLM_Handler
                 // Correct ai_message if numeric price is missing
                 if (!AIOutputValidator.ValidatePrice(reply, _aiParser.actual_intent, (int)newAIPrice))
                 {
-                    // Change it into the new numeric price in a future update
-                    // reply = $"I'm only going to sell this for {newAIPrice}.";
+                    reply += $"I'm only going to sell this for {newAIPrice}.";
+                    _aiParser.convo_message += $"I'm only going to sell this for {newAIPrice}.";
                 }
 
                 // Correct ai_message if minimum price is mentioned
@@ -133,8 +142,6 @@ namespace LLM_Handler
             }
 
 
-            // Parse Response to JSON
-            _aiParser.ParseResponse(reply);
             _currentAIAskingPrice = newAIPrice;
             _currentAIAskingPrice = Mathf.Max(_currentAIAskingPrice, _itemManager.SelectedItem.ItemBasePrice);
             _aiIntent.text = "AI Intent: " + _aiParser.actual_intent;
@@ -147,6 +154,9 @@ namespace LLM_Handler
             {
                 chatManager.ReceiveAIMessage(reply);
             }
+
+            if (_negotiationState == NegotiationState.accept) _resultScript.ShowResult($"AI Accepts Offer: {newAIPrice}", Color.green);
+            if (_negotiationState == NegotiationState.reject) _resultScript.ShowResult("AI Declines Offer", Color.red);
         }
 
         string GetPlayerInputPrompt(string offerValue, string confidenceLevel)
@@ -176,8 +186,8 @@ namespace LLM_Handler
                 item_state_prompt += "- " + item_detail + "\r\n";
             }
 
-            item_state_prompt += $"Current Asking Price: {_currentAIAskingPrice}\r\n";
-            item_state_prompt += $"Number of offers made so far: {_offersMade}\r\n";
+            //item_state_prompt += $"Current Asking Price: {_currentAIAskingPrice}\r\n";
+            //item_state_prompt += $"Number of offers made so far: {_offersMade}\r\n";
             //item_state_prompt += $"Player Behavior: {"Neutral"}\r\n\r\n"; // change to be aggressive (many low offers) | passive
 
             item_state_prompt += "\r\n";

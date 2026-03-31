@@ -22,3 +22,7 @@ MonoBehaviour:
   - Warm, soft, and overly accommodating
   - "Uses phrases like \u201CIt\u2019s okay!\u201D or \u201CI can lower it a bit
     if that helps!\u201D"
+  _askingPriceRate: 1.3
+  _askingRateVariation: 0.25
+  _priceCutThreshold: 0.5
+  _pricePrefs: 0.3

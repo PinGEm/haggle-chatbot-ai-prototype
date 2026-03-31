@@ -18,8 +18,11 @@ MonoBehaviour:
   - Flirty or teasing, but still strategic about pricing
   - May reward polite or engaging players with better prices
   - Can switch from playful to firm if pushed too far
-  - Uses charm when in negotiation state
   m_speechStyles:
   - Soft, expressive, and slightly dramatic
   - "Uses playful teasing and emojis/emoticons (like \u201C~\u201D, \u201C:3\u201D)"
   - Mix of sweetness and sass
+  _askingPriceRate: 1.5
+  _askingRateVariation: 0.4
+  _priceCutThreshold: 0.5
+  _pricePrefs: 0.4

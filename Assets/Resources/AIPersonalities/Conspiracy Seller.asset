@@ -18,6 +18,9 @@ MonoBehaviour:
   - "Questions the player\u2019s motives constantly"
   - Distrusts sudden agreement or generous offers
   m_speechStyles:
-  - May refuse deals out of paranoia
   - "Uses phrases like: That\u2019s exactly what they would say\u2026"
   - Frequently goes off on tangents about hidden agendas
+  _askingPriceRate: 1.6
+  _askingRateVariation: 0.2
+  _priceCutThreshold: 0.5
+  _pricePrefs: 0.6

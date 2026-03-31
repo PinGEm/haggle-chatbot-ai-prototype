@@ -13,6 +13,18 @@ using System.Text.RegularExpressions;
 
 public class PlayerOfferParser
 {
+    static readonly string LimitPattern =
+    @"\b(max|maximum|at most|atleast|at least|only|just|best i can do|highest i can go|most i can do|limit)\b";
+
+    static readonly string ProposalPattern =
+    @"\b(let'?s go|how about|what about|make it|go with|i'?ll do)\b";
+
+    static readonly string NegativePattern =
+    @"\b(too much|too high|overpriced|scam|ripoff|crazy|insane)\b";
+
+    static readonly string ContrastPattern =
+    @"\b(but|instead|rather|still)\b";
+
     public enum OfferConfidence
     {
         None,
@@ -66,27 +78,14 @@ public class PlayerOfferParser
             candidates.Add((value, score, context));
         }
 
-        // Get valid offer candidates (score-based, not just regex match)
-        var valid = candidates
-            .Where(x => x.context == NumberContext.OfferCandidate && x.score > 0)
-            .ToList();
+        float selected = ResolveFinalOffer(input, candidates);
 
-        if (valid.Count == 0)
-        {
-            return new OfferResult
-            {
-                OfferValue = null,
-                Confidence = OfferConfidence.None,
-                DebugReason = "No valid offer candidates"
-            };
-        }
-
-        float selected = ResolveFinalOffer(input, valid);
+        var best = candidates.OrderByDescending(x => x.score).First();
 
         return new OfferResult
         {
             OfferValue = selected,
-            Confidence = ScoreConfidence(valid.Max(x => x.score)),
+            Confidence = ScoreConfidence(best.score),
             DebugReason = "Offer detected"
         };
     }
@@ -111,57 +110,84 @@ public class PlayerOfferParser
 
         int index = match.Index;
 
-        // Get tighter window for proximity scoring
         int start = Math.Max(0, index - 40);
         int length = Math.Min(80, lowered.Length - start);
         string window = lowered.Substring(start, length);
 
+        bool hasLimit = Regex.IsMatch(window, LimitPattern);
+        bool hasRejection = Regex.IsMatch(window, @"\b(not|never|won't|wouldn't)\b");
+        bool hasReference = Regex.IsMatch(window, @"\b(price|worth|cost|selling)\b");
+        bool hasNegative = Regex.IsMatch(window, NegativePattern);
+        bool hasContrast = Regex.IsMatch(window, ContrastPattern);
+
         int score = 0;
 
-        // Check if the number is near any keyphrases
-
-        int proximityBonus = 0;
-
-        var keywordMatches = Regex.Matches(window, @"\b(buy|pay|offer|give|take|offering)\b");
+        // Proximity to offer verbs
+        var keywordMatches = Regex.Matches(window, @"\b(buy|pay|offer|give|take|offering|get)\b");
 
         foreach (Match keyword in keywordMatches)
         {
             int distance = Math.Abs((start + keyword.Index) - index);
 
-            if (distance < 10) proximityBonus += 3;
-            else if (distance < 20) proximityBonus += 2;
-            else if (distance < 30) proximityBonus += 1;
+            if (distance < 10) score += 3;
+            else if (distance < 20) score += 2;
+            else if (distance < 30) score += 1;
         }
 
-        score += proximityBonus;
+        // Looking for Limit phrases (strong)
+        var limitMatches = Regex.Matches(window, LimitPattern);
 
-        // STRONG OFFER INDICATORS \\\
-
-        if (Regex.IsMatch(window, @"\b(buy|pay|offer|give|take|offering)\b"))
-            score += 2;
-
-        // HESITATION LANGUAGE 
-
-        if (Regex.IsMatch(window, @"\b(maybe|would|could|perhaps|guess)\b"))
-            score += 1;
-
-        // REJECTION LANGUAGE
-
-        if (Regex.IsMatch(window, @"\b(not|never|won't|wouldn't)\b"))
+        foreach (Match keyword in limitMatches)
         {
-            score -= 3;
-            return (score, NumberContext.Rejection);
+            int distance = Math.Abs((start + keyword.Index) - index);
+
+            if (distance < 10) score += 4;
+            else if (distance < 20) score += 3;
+            else if (distance < 30) score += 2;
         }
 
-        // REFERENCE PRICE (neutral)
+        // Looking for proposal phrases (VERY strong signal)
+        var proposalMatches = Regex.Matches(window, ProposalPattern);
 
-        if (Regex.IsMatch(window, @"\b(price|worth|cost|selling)\b"))
+        foreach (Match keyword in proposalMatches)
+        {
+            int distance = Math.Abs((start + keyword.Index) - index);
+
+            if (distance < 10) score += 4;
+            else if (distance < 20) score += 3;
+        }
+
+        // General signals
+        if (Regex.IsMatch(window, @"\b(buy|pay|offer|give|take|offering|get)\b")) score += 2;
+
+        if (Regex.IsMatch(window, @"\b(maybe|would|could|perhaps|guess)\b")) score += 1;
+
+        // NEGATIVE CONTEXT (kills reference numbers like "930 is a scam")
+        if (hasNegative && !hasLimit)
+        {
+            score -= 4;
+        }
+
+        // REJECTION (weaker than negative sentiment)
+        if (hasRejection && !hasLimit) score -= 3;
+
+        // Contrast slightly boosts later offers
+        if (hasContrast)
+        {
+            score += 1;
+        }
+
+        // Reference price only if weak
+        if (hasReference && score <= 0)
         {
             return (score, NumberContext.ReferencePrice);
         }
 
         if (score > 0)
             return (score, NumberContext.OfferCandidate);
+
+        if (hasRejection)
+            return (score, NumberContext.Rejection);
 
         return (score, NumberContext.Unclear);
     }
@@ -171,17 +197,42 @@ public class PlayerOfferParser
     {
         string lowered = input.ToLower();
 
-        // If player "changes mind", take LAST number
+        // Get strong candidates first (limit / proposal / high confidence)
+        var strongCandidates = candidates
+            .Where(x => x.context == NumberContext.OfferCandidate && x.score >= 4)
+            .ToList();
+
+        if (strongCandidates.Count > 0)
+        {
+            return strongCandidates
+                .OrderByDescending(x => x.score)
+                .ThenByDescending(x => x.value)
+                .First().value;
+        }
+
+        // Check for all non rejections and check if there's only one, if there is, it is most LIKELY an offer.
+        var nonRejected = candidates
+            .Where(x => x.context != NumberContext.Rejection && x.score >= 0)
+            .ToList();
+
+        if (nonRejected.Count == 1)
+        {
+            return nonRejected[0].value;
+        }
+
+        // Look for any change of mind in the sentence
         if (lowered.Contains("wait") || lowered.Contains("actually"))
         {
             return candidates.Last().value;
         }
 
-        // Otherwise: take highest scored candidate first, then highest value
+        // Select the number candidate who has the most score (most likely to be the offer)
         return candidates
-            .OrderByDescending(x => x.score)
-            .ThenByDescending(x => x.value)
-            .First().value;
+            .Select((x, i) => new { val = x, index = i })
+            .OrderByDescending(x => x.val.score)
+            .ThenByDescending(x => x.val.value)
+            .ThenByDescending(x => x.index)
+            .First().val.value;
     }
 
 

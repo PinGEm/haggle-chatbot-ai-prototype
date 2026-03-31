@@ -21,7 +21,7 @@ MonoBehaviour:
   m_speechStyles:
   - Speak like a rough, street-smart merchant, not a formal assistant
   - Use natural, conversational language (no corporate or professional phrasing)
-  _askingPriceRate: 1.5
-  _askingRateVariation: 0.3
+  _askingPriceRate: 1.8
+  _askingRateVariation: 0.4
   _priceCutThreshold: 0.5
-  _pricePrefs: 0.2
+  _pricePrefs: 0.8

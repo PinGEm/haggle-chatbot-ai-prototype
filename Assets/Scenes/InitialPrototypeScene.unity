@@ -2726,18 +2726,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 829791774}
-        m_TargetAssemblyTypeName: SoundFXManager, Assembly-CSharp
-        m_MethodName: Click
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &669805987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3053,7 +3041,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1526287367}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.99999404
+  m_Size: 0.9999985
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3320,6 +3308,7 @@ GameObject:
   m_Component:
   - component: {fileID: 829791775}
   - component: {fileID: 829791774}
+  - component: {fileID: 829791776}
   m_Layer: 0
   m_Name: SounfFXManager
   m_TagString: Untagged
@@ -3344,6 +3333,11 @@ MonoBehaviour:
   clickSoundClips:
   - {fileID: 8300000, guid: 40d73125dbd62da42b7038d8b79e8b4f, type: 3}
   - {fileID: 8300000, guid: 0f577d493e159f3458fd52066465688a, type: 3}
+  dragAudioSource: {fileID: 829791776}
+  dragSwooshClip: {fileID: 8300000, guid: c3d81e9219caf90409f7529630f8e218, type: 3}
+  dragVolume: 0.651
+  movementThreshold: 2
+  fadeSpeed: 15
 --- !u!4 &829791775
 Transform:
   m_ObjectHideFlags: 0
@@ -3353,12 +3347,109 @@ Transform:
   m_GameObject: {fileID: 829791773}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 933.6321, y: 552.213, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &829791776
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829791773}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &839445599
 GameObject:
   m_ObjectHideFlags: 0
@@ -3694,6 +3785,8 @@ MonoBehaviour:
   chatScrollRect: {fileID: 2137237971}
   playerMessagePrefab: {fileID: 5188787895582566202, guid: 83314c6612e2226499b5646d4a9a5f4f, type: 3}
   aiMessagePrefab: {fileID: 8078562051023911415, guid: 98fc93213f9c4124b9aa0274161d6483, type: 3}
+  playerSendSound: {fileID: 8300000, guid: c0b4b5ee7e4821546ab42abb2bbc8e2a, type: 3}
+  aiReceiveSound: {fileID: 8300000, guid: ee0aa4364b4f5a54e90f93a909288844, type: 3}
   typingIndicatorPrefab: {fileID: 8078562051023911415, guid: 33e49c7d721b8af46adfb0e59ead758f, type: 3}
 --- !u!4 &916685339
 Transform:
@@ -4273,18 +4366,6 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 1943236257}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 829791774}
-        m_TargetAssemblyTypeName: SoundFXManager, Assembly-CSharp
-        m_MethodName: Click
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -6220,18 +6301,6 @@ MonoBehaviour:
       - m_Target: {fileID: 916685338}
         m_TargetAssemblyTypeName: ChatManager, Assembly-CSharp
         m_MethodName: SendChatMessage
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 829791774}
-        m_TargetAssemblyTypeName: SoundFXManager, Assembly-CSharp
-        m_MethodName: Click
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8597,7 +8666,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000030059404}
+  m_AnchoredPosition: {x: 0, y: -0.000028844272}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1907559867

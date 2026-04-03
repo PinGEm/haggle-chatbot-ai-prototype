@@ -15,6 +15,10 @@ public class ChatManager : MonoBehaviour
     public GameObject playerMessagePrefab;
     public GameObject aiMessagePrefab;
 
+    [Header("Chat Sounds")]
+    public AudioClip playerSendSound;
+    public AudioClip aiReceiveSound;
+
     [Header("Typing Indicator")]
     public GameObject typingIndicatorPrefab;
     private GameObject currentTypingIndicator; // Keeps track of the active dots
@@ -26,6 +30,12 @@ public class ChatManager : MonoBehaviour
 
         // 2. Spawn the new message row inside the Content box
         GameObject newMessage = Instantiate(playerMessagePrefab, contentContainer);
+
+        // Play the Send sound!
+        if (playerSendSound != null && SoundFXManager.Instance != null)
+        {
+            SoundFXManager.Instance.PlaySoundFXClip(playerSendSound, transform, 1f);
+        }
 
         // 3. Find the Text component inside the new bubble and set its text
         TextMeshProUGUI messageText = newMessage.GetComponentInChildren<TextMeshProUGUI>();
@@ -78,6 +88,12 @@ public class ChatManager : MonoBehaviour
 
         // 6. Set the text
         messageText.text = cleanAiText;
+
+        // Play the Receive sound!
+        if (aiReceiveSound != null && SoundFXManager.Instance != null)
+        {
+            SoundFXManager.Instance.PlaySoundFXClip(aiReceiveSound, transform, 1f);
+        }
 
         // --- THE NUCLEAR LAYOUT FIX ---
 

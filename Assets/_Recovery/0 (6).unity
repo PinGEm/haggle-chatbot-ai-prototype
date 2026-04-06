@@ -3041,7 +3041,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1526287367}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999936
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -8666,7 +8666,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0006489736}
+  m_AnchoredPosition: {x: 0, y: 0.00001866104}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1907559867
@@ -9851,22 +9851,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: AI Personality
       objectReference: {fileID: 0}
-    - target: {fileID: 4118034981329508092, guid: d66b9e68975e11a49b91f95e4921e2f4, type: 3}
-      propertyPath: _llm
-      value: 
-      objectReference: {fileID: 7035526471400147576}
-    - target: {fileID: 4118034981329508092, guid: d66b9e68975e11a49b91f95e4921e2f4, type: 3}
-      propertyPath: temperature
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 4118034981329508092, guid: d66b9e68975e11a49b91f95e4921e2f4, type: 3}
-      propertyPath: repeatPenalty
-      value: 1.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4118034981329508092, guid: d66b9e68975e11a49b91f95e4921e2f4, type: 3}
-      propertyPath: advancedOptions
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10051,17 +10035,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
---- !u!114 &7035526471400147576 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3002493687263979096, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
-  m_PrefabInstance: {fileID: 7035526471400147575}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a50e3140c3ecaaf1c848dbf141cc2074, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: undream.llmunity.Runtime::LLMUnity.LLM
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

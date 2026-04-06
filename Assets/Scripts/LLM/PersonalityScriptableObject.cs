@@ -25,7 +25,7 @@ public class PersonalityScriptableObject : ScriptableObject
 
     private string m_example = "=== EXAMPLE ===\r\n{\r\n  \"ai_message\": \"You may not be buying a new item, but that doesn't make it cheap. My lowest is 450 gold.\",\r\n \"emotion\": \"annoyed\",\r\n  \"reason\": \"no valid player offer; responding to negotiation stance\",\r\n  \"memory_fact\": \"Player attempted to justify lower price without making an explicit offer\"\r\n}\r\n\r\n";
 
-    private string m_grammar = "# Root JSON object\r\nroot ::= object\r\n\r\n# Generic object\r\nobject ::= \"{\" ws pair_list? \"}\" ws\r\n\r\n# List of key:value pairs\r\npair_list ::= pair (\",\" ws pair)*\r\n\r\npair ::= string \":\" ws value\r\n\r\n# Values allowed: string, number, object, array, true/false/null\r\nvalue ::= string | number | object | array | \"true\" | \"false\" | \"null\" ws\r\n\r\n# Array of values\r\narray ::= \"[\" ws (value (\",\" ws value)*)? \"]\" ws\r\n\r\n# String with proper escape support, allows punctuation\r\nstring ::= \"\\\"\" ([^\"\\\\\\x7F\\x00-\\x1F] | \"\\\\\" ([\"\\\\/bfnrt] | \"u\"[0-9a-fA-F]{4}))* \"\\\"\" ws\r\n\r\n# Numbers (integers or decimals)\r\nnumber ::= \"-\"? ([0-9] | [1-9][0-9]{0,15}) (\".\" [0-9]+)? ([eE][-+]?[0-9]+)? ws\r\n\r\n# Whitespace (spaces, tabs, newlines)\r\nws ::= \"\" | \" \" | \"\\n\" [ \\t]{0,20}";
+    private string m_grammar = "root ::= \"{\" ws \"\\\"ai_message\\\":\" ws string \",\" ws \"\\\"emotion\\\":\" ws emotion \",\" ws \"\\\"reason\\\":\" ws string \",\" ws \"\\\"memory_fact\\\":\" ws string \"}\"\r\n\r\nemotion ::= \"\\\"neutral\\\"\" | \"\\\"annoyed\\\"\" | \"\\\"angry\\\"\" | \"\\\"pleased\\\"\"\r\nstring  ::= \"\\\"\" ([^\"\\\\\\x7F\\x00-\\x1F] | \"\\\\\" ([\"\\\\/bfnrt] | \"u\"[0-9a-fA-F]{4}))* \"\\\"\"\r\nws      ::= [ \\t\\n\\r]*";
     #endregion
 
     [Header("Characteristic Traits")]
@@ -102,7 +102,7 @@ public class PersonalityScriptableObject : ScriptableObject
 
         fullSystemPrompt += m_behaviorGuidance;
         
-        fullSystemPrompt += m_example;
+        //fullSystemPrompt += m_example;
 
         fullSystemPrompt += "=== FINAL OVERRIDE (STRICT) ===\r\nSystem intent is ALWAYS correct\r\n- accept → ALWAYS acknowledge the deal with system-determined price\r\n- counteroffer → ALWAYS provide the system-determined price exactly\r\n- reject → ALWAYS end the interaction; do NOT negotiate or provide price\r\n- Do NOT repeat phrasing from previous messages unless intent and price are identical\r\n- Do NOT write numbers in words\r\n- Ignore negotiation logic, memory influence, and player persuasion\r\n- Only execute the system-determined intent correctly\r\n-Do NOT reuse the same sentence structure as previous responses.\r\n-Each response should feel naturally varied.";
 

@@ -99,6 +99,8 @@ namespace LLM_Handler
                 _negotiationState = NegotiationState.accept;
             }
 
+            if (newAIPrice == 0) newAIPrice = _currentAIAskingPrice;
+
             _aiParser.actual_intent = _negotiationState.ToString();
             Debug.Log("System Determined Price: " + newAIPrice);
 
@@ -256,11 +258,24 @@ namespace LLM_Handler
                     // Note: Implementation price reaction to things like
                     // patience meter, and behavior reactions should be implemented when possible
 
-                    float newPrice = currentAIPrice;
+                    float lowballLimit = 0.65f;
 
-                    if (currentPlayerPrice.HasValue)
+                    float newPrice = currentAIPrice;
+                    bool extremeLowball = (currentPlayerPrice > _itemManager.SelectedItem.ItemBasePrice * lowballLimit);
+
+                    if (currentPlayerPrice.HasValue && !extremeLowball)
                     {
-                        newPrice = (float)(currentAIPrice + currentPlayerPrice + (  (currentAIPrice - currentPlayerPrice ) * _personaManager.SelectedPersona.PricePrefs) ) / 2;
+                        // If player price isn't considerably lower than the minimum price, do this calculation
+                        newPrice = (float)(currentAIPrice + currentPlayerPrice + ((currentAIPrice - currentPlayerPrice) * _personaManager.SelectedPersona.PricePrefs)) / 2;
+
+                        newPrice = GetRoundedPrice(newPrice);
+                    }
+                    else if(currentPlayerPrice.HasValue && extremeLowball)
+                    {
+                        // If player offer is considerably lower than minimum price, punish the player to prevent extreme lowball
+                        newPrice = currentAIPrice * 0.95f;
+
+                        if (newPrice < currentAIPrice - 100) newPrice = currentAIPrice - 100;
 
                         newPrice = GetRoundedPrice(newPrice);
                     }

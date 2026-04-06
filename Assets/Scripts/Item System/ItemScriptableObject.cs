@@ -22,7 +22,4 @@ public class ItemScriptableObject : ScriptableObject
     public string[] ItemDetails { get { return m_itemDetails; } }
     public float ItemBasePrice { get { return m_itemBasePrice; } }
     public float ItemBaseAskPrice { get { return m_itemBaseAskPrice; } }
-
-
-    private int _itemID;
 }

@@ -55,11 +55,11 @@ MonoBehaviour:
   numPredict: -1
   cachePrompt: 1
   seed: 0
-  temperature: 0.35
+  temperature: 0.25
   topK: 40
   topP: 0.9
   minP: 0.05
-  repeatPenalty: 1.1
+  repeatPenalty: 1.3
   presencePenalty: 0
   frequencyPenalty: 0
   typicalP: 1

@@ -3041,7 +3041,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1526287367}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999936
+  m_Size: 0.99999803
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3787,6 +3787,11 @@ MonoBehaviour:
   aiMessagePrefab: {fileID: 8078562051023911415, guid: 98fc93213f9c4124b9aa0274161d6483, type: 3}
   playerSendSound: {fileID: 8300000, guid: c0b4b5ee7e4821546ab42abb2bbc8e2a, type: 3}
   aiReceiveSound: {fileID: 8300000, guid: ee0aa4364b4f5a54e90f93a909288844, type: 3}
+  typingSounds:
+  - {fileID: 8300000, guid: 2b24a764757487544b05f674c78fe52a, type: 3}
+  - {fileID: 8300000, guid: f47315d6699e0ab4c82c1359bdde018f, type: 3}
+  - {fileID: 8300000, guid: c68d7c56ec95aa9438db179a4624a30a, type: 3}
+  - {fileID: 8300000, guid: d52bf08d959f6434d814f528c62cf09b, type: 3}
   typingIndicatorPrefab: {fileID: 8078562051023911415, guid: 33e49c7d721b8af46adfb0e59ead758f, type: 3}
 --- !u!4 &916685339
 Transform:
@@ -6142,7 +6147,19 @@ MonoBehaviour:
       m_Calls: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 916685338}
+        m_TargetAssemblyTypeName: ChatManager, Assembly-CSharp
+        m_MethodName: PlayTypingSound
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -8666,7 +8683,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0006489736}
+  m_AnchoredPosition: {x: 0, y: 0.0007330868}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1907559867

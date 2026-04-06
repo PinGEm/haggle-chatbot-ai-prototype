@@ -18,6 +18,7 @@ public class ChatManager : MonoBehaviour
     [Header("Chat Sounds")]
     public AudioClip playerSendSound;
     public AudioClip aiReceiveSound;
+    public AudioClip[] typingSounds;
 
     [Header("Typing Indicator")]
     public GameObject typingIndicatorPrefab;
@@ -160,5 +161,19 @@ public class ChatManager : MonoBehaviour
             chatScrollRect.verticalNormalizedPosition = 0f;
         }
     }
+
+    /// <summary>
+    /// Unity will automatically call this every time a letter is typed or deleted.
+    /// </summary>
+    public void PlayTypingSound(string currentText)
+    {
+        // Check if we have at least one sound in the array and the manager is ready
+        if (typingSounds != null && typingSounds.Length > 0 && SoundFXManager.Instance != null)
+        {
+            // Use your existing PlayRandomSoundFXClip function!
+            SoundFXManager.Instance.PlayRandomSoundFXClip(typingSounds, transform, 0.5f);
+        }
+    }
+
 
 }

@@ -8,7 +8,7 @@ namespace LLM_Handler
         public string convo_memory_fact;
         public string actual_intent;
 
-        public string ParseResponse(string input)
+        public void ParseResponse(string input)
         {
             Debug.Log(input);
 
@@ -21,7 +21,6 @@ namespace LLM_Handler
 
             convo_message = responseData.ai_message;
             convo_memory_fact = responseData.memory_fact;
-            return responseData.ai_message;
         }
     }
 

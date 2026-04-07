@@ -119,10 +119,9 @@ namespace LLM_Handler
             // Parse Response to JSON
             _aiParser.ParseResponse(reply);
 
-
             // Validate AI Response
-            bool valid = AIOutputValidator.ValidatePrice(reply, _aiParser.actual_intent, (int)newAIPrice)
-             && AIOutputValidator.ForbidMinimumPrice(reply);
+            bool valid = AIOutputValidator.ValidatePrice(_aiParser.convo_message, _aiParser.actual_intent, (int)newAIPrice)
+             && AIOutputValidator.ForbidMinimumPrice(_aiParser.convo_message);
 
             if (!valid && _negotiationState != NegotiationState.accept)
             {
@@ -132,16 +131,17 @@ namespace LLM_Handler
                 // Correct ai_message if numeric price is missing
                 if (!AIOutputValidator.ValidatePrice(reply, _aiParser.actual_intent, (int)newAIPrice))
                 {
-                    reply += $"I'm only going to sell this for {newAIPrice}.";
-                    _aiParser.convo_message += $"I'm only going to sell this for {newAIPrice}.";
+                    _aiParser.convo_message += $" I'm only going to sell this for {newAIPrice}.";
                 }
 
                 // Correct ai_message if minimum price is mentioned
                 if (!AIOutputValidator.ForbidMinimumPrice(reply))
                 {
-                    reply = reply.Replace("minimum price", "");
+                    _aiParser.convo_message = reply.Replace("minimum price", "");
                 }
             }
+
+            if (chatManager != null) chatManager.ReceiveAIMessage(_aiParser.convo_message);
 
 
             _currentAIAskingPrice = newAIPrice;
@@ -151,11 +151,6 @@ namespace LLM_Handler
             Debug.Log(reply);
 
             Debug.Log("ACTUAL INTENT: " + _aiParser.actual_intent);
-
-            if (chatManager != null)
-            {
-                chatManager.ReceiveAIMessage(reply);
-            }
 
             if (_negotiationState == NegotiationState.accept) _resultScript.ShowResult($"AI Accepts Offer: {newAIPrice}", Color.green);
             if (_negotiationState == NegotiationState.reject) _resultScript.ShowResult("AI Declines Offer", Color.red);

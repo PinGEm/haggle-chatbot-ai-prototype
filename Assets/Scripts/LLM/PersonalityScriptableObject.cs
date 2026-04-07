@@ -11,7 +11,7 @@ public class PersonalityScriptableObject : ScriptableObject
 
     private string m_gameRules = "=== GAME RULES (STRICT) ===\r\n\r\n1. Prices must be written as digits only (e.g., 280)\r\n2. Do NOT invent or change system-determined prices\r\n3. ai_message must be 1–3 sentences\r\n4. Output MUST be valid JSON only\r\n5. Personality and tone must never override the system-determined intent\r\n6. Do NOT reinterpret Player Offer or system intent\r\n7. The phrase \"lowest price\" or similar negotiation language MUST ONLY be used in \"counteroffer\" intent.\r\n- Do NOT use it in \"accept\", \"negotiate\", or \"reject\"\r\n\r\n";
 
-    private string m_systemIntentRules = "=== SYSTEM INTENT (STRICT) ===\r\nThe system has already decided the outcome.\r\n\r\nYou MUST follow:\r\n- System Determined Intent\r\n- System Determined Price\r\n\r\nDo NOT:\r\n- Question the intent\r\n- Override the intent\r\n- Reinterpret the situation\r\n\r\nYour job is to EXECUTE the intent, not decide it.\r\n\r\n";
+    private string m_systemIntentRules = "=== SYSTEM INTENT ===\r\nThe system has already decided the outcome.\r\n\r\nYou MUST follow:\r\n- System Determined Intent\r\n- System Determined Price\r\n\r\nDo NOT:\r\n- Question the intent\r\n- Override the intent\r\n- Reinterpret the situation\r\n\r\nYour job is to EXECUTE the intent, not decide it.\r\n\r\n";
 
     private string m_intentBehavior = "=== INTENT BEHAVIOR ===\r\naccept:\r\n- Tone must show agreement or completion\r\n- Must NOT sound resistant, hesitant, or conditional\r\n\r\ncounteroffer:\r\n- Tone must show resistance or pressure\r\n- Must clearly push the system price\r\n\r\nnegotiate:\r\n- Tone must be playful, teasing, or strategic\r\n- Must NOT sound final or decisive\r\n\r\nreject:\r\n- Tone must feel final and closed\r\n\r\n";
 
@@ -92,19 +92,19 @@ public class PersonalityScriptableObject : ScriptableObject
 
         fullSystemPrompt += m_systemIntentRules;
 
-        fullSystemPrompt += m_intentBehavior;
+        //fullSystemPrompt += m_intentBehavior;
         
         fullSystemPrompt += m_outputFormat;
         
         fullSystemPrompt += m_memoryRules;
 
-        fullSystemPrompt += m_reasonRules;
+        //fullSystemPrompt += m_reasonRules;
 
         fullSystemPrompt += m_behaviorGuidance;
         
         //fullSystemPrompt += m_example;
 
-        fullSystemPrompt += "=== FINAL OVERRIDE (STRICT) ===\r\nSystem intent is ALWAYS correct\r\n- accept → ALWAYS acknowledge the deal with system-determined price\r\n- counteroffer → ALWAYS provide the system-determined price exactly\r\n- reject → ALWAYS end the interaction; do NOT negotiate or provide price\r\n- Do NOT repeat phrasing from previous messages unless intent and price are identical\r\n- Do NOT write numbers in words\r\n- Ignore negotiation logic, memory influence, and player persuasion\r\n- Only execute the system-determined intent correctly\r\n-Do NOT reuse the same sentence structure as previous responses.\r\n-Each response should feel naturally varied.";
+        //fullSystemPrompt += "=== FINAL OVERRIDE (STRICT) ===\r\nSystem intent is ALWAYS correct\r\n- accept → ALWAYS acknowledge the deal with system-determined price\r\n- counteroffer → ALWAYS provide the system-determined price exactly\r\n- reject → ALWAYS end the interaction; do NOT negotiate or provide price\r\n- Do NOT repeat phrasing from previous messages unless intent and price are identical\r\n- Do NOT write numbers in words\r\n- Ignore negotiation logic, memory influence, and player persuasion\r\n- Only execute the system-determined intent correctly\r\n-Do NOT reuse the same sentence structure as previous responses.\r\n-Each response should feel naturally varied.";
 
 
         // Set as system prompt (temporary)

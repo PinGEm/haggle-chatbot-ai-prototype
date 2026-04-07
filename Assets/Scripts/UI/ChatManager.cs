@@ -63,12 +63,12 @@ public class ChatManager : MonoBehaviour
     }
 
     // This receives the RAW JSON from your ResponseHandler
-    public void ReceiveAIMessage(string rawJson)
+    public void ReceiveAIMessage(string aiMessage)
     {
-        StartCoroutine(ProcessAIMessageWithDelay(rawJson));
+        StartCoroutine(ProcessAIMessageWithDelay(aiMessage));
     }
 
-    private System.Collections.IEnumerator ProcessAIMessageWithDelay(string rawJson)
+    private System.Collections.IEnumerator ProcessAIMessageWithDelay(string aiMessage)
     {
         // 1. Pick a random delay between 1.5 and 3 seconds
         float typingDelay = Random.Range(1.5f, 3.0f);
@@ -79,16 +79,12 @@ public class ChatManager : MonoBehaviour
         // 3. Hide the dots
         HideTypingIndicator();
 
-        // 4. Read the JSON 
-        AIResponseData responseData = JsonUtility.FromJson<AIResponseData>(rawJson);
-        string cleanAiText = responseData.ai_message;
-
         // 5. Spawn the AI Message Row (The Clone)
         GameObject newAiMessage = Instantiate(aiMessagePrefab, contentContainer);
         TextMeshProUGUI messageText = newAiMessage.GetComponentInChildren<TextMeshProUGUI>();
 
         // 6. Set the text
-        messageText.text = cleanAiText;
+        messageText.text = aiMessage;
 
         // Play the Receive sound!
         if (aiReceiveSound != null && SoundFXManager.Instance != null)

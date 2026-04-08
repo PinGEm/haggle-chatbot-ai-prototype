@@ -56,7 +56,7 @@ MonoBehaviour:
   _contextSize: 12000
   _batchSize: 512
   _model: Qwen3.5-2B-Q4_K_M.gguf
-  _flashAttention: 0
+  _flashAttention: 1
   _reasoning: 1
   _lora: 
   _loraWeights: 

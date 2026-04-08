@@ -72,23 +72,6 @@ namespace LLM_Handler
         async void TryGetAIResponse(Button sendButton)
         {
             // Parse Input for Player Offer
-            var result = PlayerOfferParser.Parse(_messageField.text);
-            float? offerValue_numerical = result.OfferValue;
-            string offerValue = "";
-
-            if (result.OfferValue.HasValue)
-            {
-                offerValue = result.OfferValue.Value.ToString();
-                _lastDiscussedPrice = result.OfferValue.Value;
-                _offersMade++;
-            }
-            else
-            {
-                offerValue = "none";
-            }
-
-            string confidenceLevel = result.Confidence.ToString().ToLower();
-
             _negotiationState = DetermineIntent(offerValue_numerical, _currentAIAskingPrice);
 
             float newAIPrice = DetermineNewAIPrice(_currentAIAskingPrice, offerValue_numerical);
@@ -139,6 +122,8 @@ namespace LLM_Handler
                 {
                     _aiParser.convo_message = reply.Replace("minimum price", "");
                 }
+
+                Debug.Log($"New Message: {_aiParser.convo_message}");
             }
 
             if (chatManager != null) chatManager.ReceiveAIMessage(_aiParser.convo_message);
@@ -161,9 +146,6 @@ namespace LLM_Handler
             string player_input_prompt = "=== PLAYER INPUT===\r\n";
 
             player_input_prompt += $"Player Message: {_messageField.text}\r\n";
-            player_input_prompt += $"Player Offer: {offerValue}\r\n"; 
-            player_input_prompt += $"Offer Confidence: {confidenceLevel}\r\n"; 
-            player_input_prompt += $"Last Discussed Price: {_lastDiscussedPrice}\r\n";
             //player_input_prompt += $"Player Tone: {"Neutral"}\r\n\r\n"; // Change to be the actual tone
 
 
@@ -247,56 +229,47 @@ namespace LLM_Handler
 
         private float DetermineNewAIPrice(float currentAIPrice, float? currentPlayerPrice)
         {
-            switch (_negotiationState)
+            // Note: Implementation price reaction to things like
+            // patience meter, and behavior reactions should be implemented when possible
+
+            float lowballLimit = 0.65f;
+
+            float newPrice = currentAIPrice;
+            bool extremeLowball = (currentPlayerPrice > _itemManager.SelectedItem.ItemBasePrice * lowballLimit);
+
+            if (currentPlayerPrice.HasValue && !extremeLowball)
             {
-                case NegotiationState.counteroffer:
-                    // Note: Implementation price reaction to things like
-                    // patience meter, and behavior reactions should be implemented when possible
+                // If player price isn't considerably lower than the minimum price, do this calculation
+                newPrice = (float)(currentAIPrice + currentPlayerPrice + ((currentAIPrice - currentPlayerPrice) * _personaManager.SelectedPersona.PricePrefs)) / 2;
 
-                    float lowballLimit = 0.65f;
-
-                    float newPrice = currentAIPrice;
-                    bool extremeLowball = (currentPlayerPrice > _itemManager.SelectedItem.ItemBasePrice * lowballLimit);
-
-                    if (currentPlayerPrice.HasValue && !extremeLowball)
-                    {
-                        // If player price isn't considerably lower than the minimum price, do this calculation
-                        newPrice = (float)(currentAIPrice + currentPlayerPrice + ((currentAIPrice - currentPlayerPrice) * _personaManager.SelectedPersona.PricePrefs)) / 2;
-
-                        newPrice = GetRoundedPrice(newPrice);
-                    }
-                    else if(currentPlayerPrice.HasValue && extremeLowball)
-                    {
-                        // If player offer is considerably lower than minimum price, punish the player to prevent extreme lowball
-                        newPrice = currentAIPrice * 0.95f;
-
-                        if (newPrice < currentAIPrice - 100) newPrice = currentAIPrice - 100;
-
-                        newPrice = GetRoundedPrice(newPrice);
-                    }
-
-                    // Price Variation
-                    int variation = UnityEngine.Random.Range(1,7);
-                    
-                    switch (variation)
-                    {
-                        case 1: newPrice += 5; break;
-                        case 2: newPrice += 10; break;
-                        case 3: newPrice -= 5; break;
-                        case 4: newPrice -= 10; break;
-                        case 5: newPrice += 0; break;
-                        case 6: newPrice -= 0; break;
-                    }
-
-                    newPrice = Mathf.Clamp(newPrice, _itemManager.SelectedItem.ItemBasePrice + 10, _currentAIAskingPrice - 10);
-                    
-                    return newPrice;
-                default:
-                    // If the state is: Accept, Reject, Negotiation;
-                    // Make the AI stand on business
-
-                    return currentAIPrice;
+                newPrice = GetRoundedPrice(newPrice);
             }
+            else if(currentPlayerPrice.HasValue && extremeLowball)
+            {
+                // If player offer is considerably lower than minimum price, punish the player to prevent extreme lowball
+                newPrice = currentAIPrice * 0.95f;
+
+                if (newPrice < currentAIPrice - 100) newPrice = currentAIPrice - 100;
+
+                newPrice = GetRoundedPrice(newPrice);
+            }
+
+            // Price Variation
+            int variation = UnityEngine.Random.Range(1,7);
+                    
+            switch (variation)
+            {
+                case 1: newPrice += 5; break;
+                case 2: newPrice += 10; break;
+                case 3: newPrice -= 5; break;
+                case 4: newPrice -= 10; break;
+                case 5: newPrice += 0; break;
+                case 6: newPrice -= 0; break;
+            }
+
+            newPrice = Mathf.Clamp(newPrice, _itemManager.SelectedItem.ItemBasePrice + 10, _currentAIAskingPrice - 10);
+                    
+            return newPrice;
         }
 
 

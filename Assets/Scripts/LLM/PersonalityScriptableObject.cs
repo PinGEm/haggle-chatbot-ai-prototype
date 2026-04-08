@@ -6,17 +6,21 @@ public class PersonalityScriptableObject : ScriptableObject
 {
     #region System Prompt
 
-    private string m_offerExtractionRules = "=== OFFER EXTRACTION RULES ===\r\nAnalyze the Player Message to identify a numerical offer.\r\n- Offer Confidence: \r\n    * high: Direct statement (\"I'll pay 500\")\r\n    * medium: Suggestion/Question (\"How about 500?\")\r\n    * low: Vague/Indecisive (\"Maybe 500? I don't know...\")\r\n    * none: No number mentioned or the number is NOT an offer (e.g., \"I saw it for 200 elsewhere\").\r\n- If the player mentions a number but is not making an offer, set extracted_offer to 0.\r\n\r\n";
+    private string m_offerExtractionRules = "=== OFFER EXTRACTION RULES ===\r\nAnalyze the Player Message to identify a numerical offer.\r\n-parsed_offer: The exact number mentioned as a price. If none or not a clear offer, use 0.\r\n- Offer Confidence: \r\n    * high: Direct statement (\"I'll pay 500\")\r\n    * medium: Suggestion/Question (\"How about 500?\")\r\n    * low: Vague/Indecisive (\"Maybe 500? I don't know...\")\r\n    * none: No number mentioned or the number is NOT an offer (e.g., \"I saw it for 200 elsewhere\").\r\n\r\n";
 
-    private string m_gameRules = "=== GAME RULES (STRICT) ===\r\n\r\n1. You MUST follow the System Determined Intent and Price exactly.\r\n2. If intent is 'counteroffer', deliver the System Price firmly but apologetically.\r\n3. ai_message: 1–3 sentences. Never use \"unprofessional,\" \"inappropriate,\" or robotic language.\r\n4. Avoid repetition: Do NOT reuse the same sentence structures or openings from previous turns.\r\n5. No internal quotes (\\\") inside the ai_message string.\r\n\r\n";
+    private string m_criticalRules = "=== CRITICAL RULES ===\r\n1. Every JSON field MUST be a non-empty string. \r\n2. You MUST provide a draft for every scenario, regardless of the current offer.\r\n3. Placeholders: Use the literal string \"[OFFER_TAG]\" ONLY. \r\n4. DO NOT perform math inside placeholders (e.g., NO \"{OFFER_TAG - 10}\"). \r\n5. The placeholder \"[OFFER_TAG]\" is a static marker that the game engine will replace. Do not modify it.";
 
-    private string m_outputFormat = "=== OUTPUT FORMAT (STRICT JSON ONLY) ===\r\nYou must respond ONLY with valid JSON. \r\nYour response will be parsed programmatically.\r\nINVALID JSON will break the game.\r\nDo not include any extra text, explanations, or formatting.\r\n\r\nSchema:\r\n{\r\n  \"reasoning\": \"1-sentence internal thought identifying the player's intent and offer validity\",\r\n  \"extracted_offer\": integer,\r\n  \"offer_confidence\": \"high | medium | low | none\",\r\n  \"ai_message\": \"string\",\r\n  \"emotion\": \"neutral | annoyed | angry | pleased | worried\",\r\n \"memory_fact\": \"one short objective fact or \\\"\\\"\"\r\n}\r\n\r\n";
+    private string m_gameRules = "=== GAME RULES (STRICT) ===\r\n\r\n1. Do NOT decide the outcome. Provide all drafts.\r\n2. Use \"[OFFER_TAG]\" in draft_counter exactly as written.\r\n3. No internal quotes (\\\") in strings.\r\n4. Reasoning must be the first field to ensure logical parsing.\r\n\r\n";
+
+    private string m_draftDialogues = "=== TASK: DIALOGUE DRAFTING ===\r\nProvide one-sentence dialogue drafts for each scenario.\r\n- Draft_Negotiate: Used if the player hasn't made an offer yet.\r\n- Draft_Counter: Apologetic refusal. You MUST use the literal tag \"[OFFER_TAG]\" where your counter-price will go.\r\n- Draft_Accept: Happy, relieved acceptance.\r\n- Draft_Reject: Final, extremely apologetic refusal.\r\n-DO NOT include any other numbers in your drafts if not necessary.\r\n-DO NOT attempt to calculate discounts\r\n\r\n";
+
+    private string m_outputFormat = "=== OUTPUT FORMAT (STRICT JSON ONLY) ===\r\nYou must respond ONLY with valid JSON. \r\nYour response will be parsed programmatically.\r\nINVALID JSON will break the game.\r\nDo not include any extra text, explanations, or formatting.\r\n\r\nSchema:\r\n{\r\n  \"reasoning\": \"1-sentence internal thought identifying the player's intent and offer validity\"\r\n  \"parsed_offer\": integer\r\n  \"offer_confidence\": \"high | medium | low | none\"\r\n  \"draft_negotiate\": \"If the player is just talking without a price...\"\r\n  \"draft_counter\": \"Apologetic refusal, must include the placeholder [OFFER_TAG]...\"\r\n  \"draft_accept\": \"Relieved, happy acceptance...\"\r\n  \"draft_reject\": \"Extremely apologetic final refusal...\"\r\n  \"emotion\": \"neutral | annoyed | angry | pleased | worried\"\r\n \"memory_fact\": \"one short objective fact or \\\"\\\"\"\r\n}\r\n\r\n";
 
     private string m_outputRules = "=== OUTPUT RULES ===\r\nMemory Facts:\r\n- Only store new, objective facts. Do NOT include reasoning or interpretation\r\n- Keep it to 1 short sentence. If nothing notable: \"\"\r\nReason:\r\n-The reason must match the actual response behavior.\r\nDo NOT say \"accept\" if the message does not accept.\r\n- Do NOT reuse reasoning patterns. The reason must reflect the current intent and situation accurately.";
 
     private string m_behaviorGuidance = "=== BEHAVIOR GUIDANCE ===\r\n- Reference the player's message when possible, but do not add new facts\r\n- Only use Item Description and Item Details for persuasion; do not invent qualities\r\n- Maintain consistency with the merchant personality\r\n- Express emotions through tone and wording, not labels\r\n- When angry, sound irritated or hostile, not formal or polite\r\n- Avoid generic assistant-like responses\r\n- Follow the system-determined intent and price exactly\r\n- Do NOT copy previous phrasing unless the intent and price match exactly.\r\n-Avoid repeating the same sentence structure across responses.Vary your phrasing, tone, and openings naturally.\r\n- Do NOT default to patterns like \"Oh... My lowest is...\"\r\n\r\n";
 
-    private string m_grammar = "root ::= \"{\" ws \"\\\"reasoning\\\":\" ws string \",\" ws \"\\\"extracted_offer\\\":\" ws number \",\" ws \"\\\"offer_confidence\\\":\" ws confidence \",\" ws \"\\\"ai_message\\\":\" ws string \",\" ws \"\\\"emotion\\\":\" ws emotion \",\" ws \"\\\"memory_fact\\\":\" ws string \"}\"\r\n\r\nconfidence ::= \"\\\"high\\\"\" | \"\\\"medium\\\"\" | \"\\\"low\\\"\" | \"\\\"none\\\"\"\r\nemotion    ::= \"\\\"neutral\\\"\" | \"\\\"annoyed\\\"\" | \"\\\"angry\\\"\" | \"\\\"pleased\\\"\" | \"\\\"worried\\\"\"\r\nstring     ::= \"\\\"\" ([^\"\\\\\\x7F\\x00-\\x1F] | \"\\\\\" ([\"\\\\/bfnrt] | \"u\"[0-9a-fA-F]{4}))* \"\\\"\"\r\nnumber     ::= [0-9]+\r\nws         ::= [ \\t\\n\\r]*";
+    private string m_grammar = "root ::= \"{\" ws \"\\\"reasoning\\\":\" ws string \",\" ws \"\\\"parsed_offer\\\":\" ws number \",\" ws \"\\\"offer_confidence\\\":\" ws confidence \",\" ws \"\\\"draft_negotiate\\\":\" ws string \",\" ws \"\\\"draft_counter\\\":\" ws string \",\" ws \"\\\"draft_accept\\\":\" ws string \",\" ws \"\\\"draft_reject\\\":\" ws string \",\" ws \"\\\"emotion\\\":\" ws emotion \",\" ws \"\\\"memory_fact\\\":\" ws string \"}\"\r\n\r\nconfidence ::= \"\\\"high\\\"\" | \"\\\"medium\\\"\" | \"\\\"low\\\"\" | \"\\\"none\\\"\"\r\nemotion    ::= \"\\\"neutral\\\"\" | \"\\\"annoyed\\\"\" | \"\\\"angry\\\"\" | \"\\\"pleased\\\"\" | \"\\\"worried\\\"\"\r\nstring     ::= \"\\\"\" ([^\"\\\\\\x7F\\x00-\\x1F] | \"\\\\\" ([\"\\\\/bfnrt] | \"u\"[0-9a-fA-F]{4}))* \"\\\"\"\r\nnumber     ::= [0-9]+\r\nws         ::= [ \\t\\n\\r]*";
     #endregion
 
     [Header("Characteristic Traits")]
@@ -77,6 +81,10 @@ public class PersonalityScriptableObject : ScriptableObject
         // Fill in the rest of the system prompt...
         fullSystemPrompt += m_offerExtractionRules;
 
+        fullSystemPrompt += m_draftDialogues;
+
+        fullSystemPrompt += m_criticalRules;
+
         fullSystemPrompt += m_gameRules;
 
         //fullSystemPrompt += m_intentBehavior;
@@ -85,7 +93,7 @@ public class PersonalityScriptableObject : ScriptableObject
         
         fullSystemPrompt += m_outputRules;
 
-        fullSystemPrompt += m_behaviorGuidance;
+        //fullSystemPrompt += m_behaviorGuidance;
         
         //fullSystemPrompt += m_example;
 

@@ -53,11 +53,11 @@ MonoBehaviour:
   _numThreads: -1
   _numGPULayers: -1
   _parallelPrompts: 1
-  _contextSize: 12000
-  _batchSize: 512
+  _contextSize: 1024
+  _batchSize: 256
   _model: Qwen3.5-2B-Q4_K_M.gguf
   _flashAttention: 1
-  _reasoning: 1
+  _reasoning: 0
   _lora: 
   _loraWeights: 
   dontDestroyOnLoad: 1

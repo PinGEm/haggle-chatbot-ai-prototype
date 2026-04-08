@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using LLMAgent = LLMUnity.LLMAgent;
 using System;
+using static UnityEngine.Audio.ProcessorInstance;
 
 namespace LLM_Handler
 {
@@ -71,14 +72,29 @@ namespace LLM_Handler
 
         async void TryGetAIResponse(Button sendButton)
         {
-            // Parse Input for Player Offer
-            _negotiationState = DetermineIntent(offerValue_numerical, _currentAIAskingPrice);
+            string fullPrompt = $"You are currently *SELLING* an item to the player. \r\n\r\n" + 
+                GetPlayerInputPrompt() + GetCurrentItemState() + GetMemoryFacts() +
+                $"IMPORTANT:\r\n1. Identify the Extracted_Offer first.\r\n2. Draft all responses according to your personality.\r\n3. Use the [OFFER_TAG] placeholder in the counteroffer draft.";
 
-            float newAIPrice = DetermineNewAIPrice(_currentAIAskingPrice, offerValue_numerical);
-            
-            if (newAIPrice < offerValue_numerical)
+            Debug.Log(fullPrompt);
+
+            // Send full response to LLM
+            string reply = await _llmAgent.Chat(fullPrompt);
+            sendButton.interactable = true;
+            // Parse Response to JSON
+            _aiParser.ParseResponse(reply);
+
+
+            // DECISION MAKER
+            int parsedOffer = _aiParser.player_offer;
+
+            _negotiationState = DetermineIntent(parsedOffer, _currentAIAskingPrice);
+
+            float newAIPrice = DetermineNewAIPrice(_currentAIAskingPrice, parsedOffer);
+
+            if (newAIPrice < parsedOffer)
             {
-                newAIPrice = (float)offerValue_numerical;
+                newAIPrice = (float)parsedOffer;
                 _negotiationState = NegotiationState.accept;
             }
 
@@ -87,24 +103,21 @@ namespace LLM_Handler
             _aiParser.actual_intent = _negotiationState.ToString();
             Debug.Log("System Determined Price: " + newAIPrice);
 
-            string fullPrompt = $"You are currently *SELLING* an item to the player. \r\n\r\n" + 
-                GetPlayerInputPrompt(offerValue, confidenceLevel) + GetCurrentItemState() + GetMemoryFacts() +
-                $"IMPORTANT:\r\n- You MUST follow the game's determined intent and price.\r\n-System Determined intent: {_aiParser.actual_intent}.\r\n-System Determined price: {newAIPrice}\r\n-Please remember to follow the behavior guidelines, personality, speech rules, offer interpretation rules, and game rules and ONLY respond in the given JSON format";
+            // Choosing the right message
+            string finalMessage = "";
+            switch (_negotiationState)
+            {
+                case NegotiationState.negotiation: finalMessage = _aiParser.negotiate_message; break;
+                case NegotiationState.accept: finalMessage = _aiParser.accept_message; break;
+                case NegotiationState.reject: finalMessage = _aiParser.reject_message; break;
+                case NegotiationState.counteroffer: finalMessage = _aiParser.counter_message; break;
+            }
 
-            Debug.Log(fullPrompt);
-
-            // Send full response to LLM
-            string reply = await _llmAgent.Chat(fullPrompt);
-            
-            sendButton.interactable = true;
-
-
-            // Parse Response to JSON
-            _aiParser.ParseResponse(reply);
+            finalMessage = finalMessage.Replace("[OFFER_TAG]", newAIPrice.ToString());
 
             // Validate AI Response
-            bool valid = AIOutputValidator.ValidatePrice(_aiParser.convo_message, _aiParser.actual_intent, (int)newAIPrice)
-             && AIOutputValidator.ForbidMinimumPrice(_aiParser.convo_message);
+            bool valid = AIOutputValidator.ValidatePrice(finalMessage, _aiParser.actual_intent, (int)newAIPrice)
+             && AIOutputValidator.ForbidMinimumPrice(finalMessage);
 
             if (!valid && _negotiationState != NegotiationState.accept)
             {
@@ -114,19 +127,19 @@ namespace LLM_Handler
                 // Correct ai_message if numeric price is missing
                 if (!AIOutputValidator.ValidatePrice(reply, _aiParser.actual_intent, (int)newAIPrice))
                 {
-                    _aiParser.convo_message += $" I'm only going to sell this for {newAIPrice}.";
+                    finalMessage += $" I'm only going to sell this for {newAIPrice}.";
                 }
 
                 // Correct ai_message if minimum price is mentioned
                 if (!AIOutputValidator.ForbidMinimumPrice(reply))
                 {
-                    _aiParser.convo_message = reply.Replace("minimum price", "");
+                    finalMessage = reply.Replace("minimum price", "");
                 }
 
-                Debug.Log($"New Message: {_aiParser.convo_message}");
+                Debug.Log($"New Message: {finalMessage}");
             }
 
-            if (chatManager != null) chatManager.ReceiveAIMessage(_aiParser.convo_message);
+            if (chatManager != null) chatManager.ReceiveAIMessage(finalMessage);
 
 
             _currentAIAskingPrice = newAIPrice;
@@ -141,7 +154,7 @@ namespace LLM_Handler
             if (_negotiationState == NegotiationState.reject) _resultScript.ShowResult("AI Declines Offer", Color.red);
         }
 
-        string GetPlayerInputPrompt(string offerValue, string confidenceLevel)
+        string GetPlayerInputPrompt()
         {
             string player_input_prompt = "=== PLAYER INPUT===\r\n";
 
@@ -157,6 +170,7 @@ namespace LLM_Handler
             string item_state_prompt = "=== CURRENT ITEM STATE ===\r\n";
 
             item_state_prompt += $"Item: {_itemManager.SelectedItem.ItemName}\r\n";
+            item_state_prompt += $"Current Asking Price: {_currentAIAskingPrice}\r\n";
             item_state_prompt += $"Item Description: {_itemManager.SelectedItem.ItemDescription}\r\n";
 
             item_state_prompt += "Item Details:\r\n";

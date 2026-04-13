@@ -20,7 +20,7 @@ public class PersonalityScriptableObject : ScriptableObject
 
     private string m_example = "## EXAMPLE LAYOUT\r\n{\r\n  \"parsed_offer\": 500,\r\n  \"reasoning\": \"OFFER_VAL = 500. They want the item, but why so much gold? Suspicious.\",\r\n  \"emotion\": \"annoyed\",\r\n  \"draft_negotiate\": \"Why are you circling this bear like a vulture? State your business.~\",\r\n  \"draft_counter\": \"I see through your games; 500 is a bribe! I need [V] to stay quiet.~\",\r\n  \"draft_accept\": \"Fine, take it, but I know where this gold is really from!~\",\r\n  \"draft_reject\": \"I won't be a pawn in your [V] scheme! Get out!~\",\r\n  \"memory_fact\": \"Player tried to pay with potentially marked coins.\"\r\n}";
 
-    private string m_grammar = "root ::= \"{\" ws \"\\\"parsed_offer\\\":\" ws [0-9]+ \",\" ws \"\\\"memory_fact\\\":\" ws string \",\" ws \"\\\"emotion\\\":\" ws emotion \",\" ws \"\\\"draft_negotiate\\\":\" ws string \",\" ws \"\\\"draft_counter\\\":\" ws counter_string \",\" ws \"\\\"draft_accept\\\":\" ws string \",\" ws \"\\\"draft_reject\\\":\" ws string \"}\"\r\n\r\n# string: Forbids { } [ ] and 0-9. Only allows text and punctuation.\r\nstring ::= \"\\\"\" ([^\"\\\\0-9\\[\\]\\{\\}\\$] | \"\\\\\" ([\"\\\\/bfnrt] | \"u\"[0-9a-fA-F]{4}))* \"\\\"\"\r\n\r\n# counter_string: Only allows [V] as the single exception to the bracket/number rule.\r\ncounter_string ::= \"\\\"\" ([^\"\\\\0-9\\[\\]\\{\\}\\$] | \"[V]\" | \"\\\\\" ([\"\\\\/bfnrt] | \"u\"[0-9a-fA-F]{4}))* \"\\\"\"\r\n\r\nemotion ::= \"\\\"neutral\\\"\" | \"\\\"annoyed\\\"\" | \"\\\"angry\\\"\" | \"\\\"pleased\\\"\" | \"\\\"worried\\\"\"\r\nws ::= [ \\t\\n\\r]*";
+    private string m_grammar = "root ::= \"{\" ws \"\\\"parsed_offer\\\":\" ws [0-9]+ \",\" ws \"\\\"memory_fact\\\":\" ws string \",\" ws \"\\\"emotion\\\":\" ws emotion \",\" ws \"\\\"draft_negotiate\\\":\" ws string \",\" ws \"\\\"draft_counter\\\":\" ws string \",\" ws \"\\\"draft_accept\\\":\" ws string \",\" ws \"\\\"draft_reject\\\":\" ws string \"}\"\r\n\r\n# Permissive string that allows standard text but prevents unescaped quotes\r\nstring ::= \"\\\"\" ([^\"\\\\\\r\\n] | \"\\\\\" ([\"\\\\/bfnrt] | \"u\"[0-9a-fA-F]{4}))* \"\\\"\"\r\n\r\nemotion ::= \"\\\"neutral\\\"\" | \"\\\"annoyed\\\"\" | \"\\\"angry\\\"\" | \"\\\"pleased\\\"\" | \"\\\"worried\\\"\"\r\nws ::= [ \\t\\n\\r]*";
     #endregion
 
     [Header("Characteristic Traits")]
@@ -82,12 +82,12 @@ public class PersonalityScriptableObject : ScriptableObject
             fullSystemPrompt += "- " + m_speechStyles[i] + "\r\n";
         }
 
-        fullSystemPrompt += "STRICT RULE: Only provide DIALOGUE. \r\nNO describing actions, NO brackets[], NO braces { }.\r\n\r\n";
+        fullSystemPrompt += "STRICT RULE: Only provide DIALOGUE. \r\nNO describing actions, NO brackets[], NO braces { }. Do not include stage directions, actions, or emoticons in parentheses () or asterisks *.\r\n\r\n";
 
         // Listing out mandatory speech styles
         fullSystemPrompt += "\r\nAvoid using phrases like \"unprofessional\", \"inappropriate\", or overly formal or robotic language\r\n\r\n";
 
-        fullSystemPrompt += "## TASK\r\n1. Extract parsed_offer from Player Message. (Integer only, default 0).\r\n2. Write 4 unique 1-sentence dialogue drafts.\r\n3. Use [V] for prices in drafts. NO digits in dialogue.\r\n4. Each draft field MUST be unique. Do not repeat the same sentence across different drafts.\r\n\r\n";
+        fullSystemPrompt += "## TASK\r\n1. Extract parsed_offer from Player Message. (Integer only, default 0).\r\n2. Write 4 unique 1-sentence dialogue drafts.\r\n3. Use [V] for prices in drafts. NO digits in dialogue.\r\n4. Each draft field MUST be unique. Do not repeat the same sentence across different drafts.\r\n5. IMPORTANT: Do NOT perform math. Do NOT write actual numbers in drafts.\r\n\r\n";
 
         fullSystemPrompt += m_outputFormat;
 

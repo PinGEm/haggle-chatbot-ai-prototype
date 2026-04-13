@@ -74,7 +74,7 @@ namespace LLM_Handler
         {
             string fullPrompt = $"You are currently *SELLING* an item to the player. \r\n\r\n" + 
                 GetPlayerInputPrompt() + GetCurrentItemState() + GetMemoryFacts() +
-                $"IMPORTANT:\r\n1. Identify the Extracted_Offer first.\r\n2. Draft all responses according to your personality.\r\n3. Use the [OFFER_TAG] placeholder in the counteroffer draft.";
+                $"IMPORTANT:\r\n1. Identify the Extracted_Offer first.\r\n2. Draft all responses according to your personality.\r\n3. Use the [V] placeholder in the counteroffer draft.";
 
             Debug.Log(fullPrompt);
 
@@ -113,7 +113,7 @@ namespace LLM_Handler
                 case NegotiationState.counteroffer: finalMessage = _aiParser.counter_message; break;
             }
 
-            finalMessage = finalMessage.Replace("[OFFER_TAG]", newAIPrice.ToString());
+            finalMessage = finalMessage.Replace("[V]", newAIPrice.ToString());
 
             // Validate AI Response
             bool valid = AIOutputValidator.ValidatePrice(finalMessage, _aiParser.actual_intent, (int)newAIPrice)

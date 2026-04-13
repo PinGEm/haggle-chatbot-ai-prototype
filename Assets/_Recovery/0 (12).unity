@@ -8686,7 +8686,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00006571007}
+  m_AnchoredPosition: {x: 0, y: 0.00023221606}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1907559867
@@ -9877,23 +9877,19 @@ PrefabInstance:
       objectReference: {fileID: 7035526471400147576}
     - target: {fileID: 4118034981329508092, guid: d66b9e68975e11a49b91f95e4921e2f4, type: 3}
       propertyPath: temperature
-      value: 0.3
+      value: 0.35
       objectReference: {fileID: 0}
     - target: {fileID: 4118034981329508092, guid: d66b9e68975e11a49b91f95e4921e2f4, type: 3}
       propertyPath: repeatPenalty
-      value: 1.3
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 4118034981329508092, guid: d66b9e68975e11a49b91f95e4921e2f4, type: 3}
       propertyPath: advancedOptions
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4118034981329508092, guid: d66b9e68975e11a49b91f95e4921e2f4, type: 3}
-      propertyPath: presencePenalty
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4118034981329508092, guid: d66b9e68975e11a49b91f95e4921e2f4, type: 3}
       propertyPath: frequencyPenalty
-      value: 0
+      value: 0.1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10024,15 +10020,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3002493687263979096, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
       propertyPath: _model
-      value: SmolLM3-Q4_K_M.gguf
-      objectReference: {fileID: 0}
-    - target: {fileID: 3002493687263979096, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
-      propertyPath: _batchSize
-      value: 512
+      value: Phi-4-mini-instruct-Q4_K_M.gguf
       objectReference: {fileID: 0}
     - target: {fileID: 3002493687263979096, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
       propertyPath: _contextSize
-      value: 1312
+      value: 909
       objectReference: {fileID: 0}
     - target: {fileID: 3002493687263979096, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
       propertyPath: _numGPULayers
@@ -10044,11 +10036,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3002493687263979096, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
       propertyPath: _embeddingLength
-      value: 2048
+      value: 3072
       objectReference: {fileID: 0}
     - target: {fileID: 3002493687263979096, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
       propertyPath: maxContextLength
-      value: 65536
+      value: 131072
       objectReference: {fileID: 0}
     - target: {fileID: 4204533064536706296, guid: 6396229df88969c4d910b65a3fd8d1e2, type: 3}
       propertyPath: m_Name

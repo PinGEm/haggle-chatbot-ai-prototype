@@ -284,16 +284,16 @@ namespace LLM_Handler
             float lowballLimit = 0.65f;
 
             float newPrice = currentAIPrice;
-            bool extremeLowball = (currentPlayerPrice > _itemManager.SelectedItem.ItemBasePrice * lowballLimit);
+            bool isExtremeLowball = (currentPlayerPrice > _itemManager.SelectedItem.ItemBasePrice * lowballLimit);
 
-            if (currentPlayerPrice.HasValue && !extremeLowball)
+            if (currentPlayerPrice.HasValue && !isExtremeLowball)
             {
                 // If player price isn't considerably lower than the minimum price, do this calculation
                 newPrice = (float)(currentAIPrice + currentPlayerPrice + ((currentAIPrice - currentPlayerPrice) * _personaManager.SelectedPersona.PricePrefs)) / 2;
 
                 newPrice = GetRoundedPrice(newPrice);
             }
-            else if(currentPlayerPrice.HasValue && extremeLowball)
+            else if(currentPlayerPrice.HasValue && isExtremeLowball)
             {
                 // If player offer is considerably lower than minimum price, punish the player to prevent extreme lowball
                 newPrice = currentAIPrice * 0.95f;

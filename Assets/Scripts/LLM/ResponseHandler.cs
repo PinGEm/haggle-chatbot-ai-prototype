@@ -5,11 +5,16 @@ using TMPro;
 using LLMAgent = LLMUnity.LLMAgent;
 using System;
 using static UnityEngine.Audio.ProcessorInstance;
+using System.Runtime.CompilerServices;
+
 
 namespace LLM_Handler
 {
     public class ResponseHandler : MonoBehaviour
     {
+        const int ACCEPTANCE_PATIENCE_METER = 4;
+        const int REFUSAL_PATIENCE_METER = 5;
+
         enum NegotiationState
         {
             // Most probably gonna be moved somewhere else
@@ -35,7 +40,7 @@ namespace LLM_Handler
         // Temporary Variables
         int _offersMade = 0;
         float _currentAIAskingPrice;
-        float _lastDiscussedPrice;
+        float _patienceMeter = 0;
         #endregion
 
 
@@ -46,6 +51,7 @@ namespace LLM_Handler
         #endregion
 
         private AiResponseParser _aiParser;
+        private string _previousMessage;
 
         private void Start()
         {
@@ -67,7 +73,6 @@ namespace LLM_Handler
             sendButton.interactable = false;
 
             TryGetAIResponse(sendButton);
-            Debug.Log("Transaction Complete!");
         }
 
         async void TryGetAIResponse(Button sendButton)
@@ -85,11 +90,11 @@ namespace LLM_Handler
             _aiParser.ParseResponse(reply);
 
 
-            // DECISION MAKER
+            // ----- DECISION MAKING SYSTEM ----- \\
             int parsedOffer = _aiParser.player_offer;
 
+            ApplyEmotionalEffect();
             _negotiationState = DetermineIntent(parsedOffer, _currentAIAskingPrice);
-
             float newAIPrice = DetermineNewAIPrice(_currentAIAskingPrice, parsedOffer);
 
             if (newAIPrice < parsedOffer)
@@ -159,8 +164,9 @@ namespace LLM_Handler
             string player_input_prompt = "=== PLAYER INPUT===\r\n";
 
             player_input_prompt += $"Player Message: {_messageField.text}\r\n";
-            //player_input_prompt += $"Player Tone: {"Neutral"}\r\n\r\n"; // Change to be the actual tone
 
+            if (_previousMessage == _messageField.text) _patienceMeter -= 1;
+            _previousMessage = _messageField.text;
 
             return player_input_prompt + "\r\n";
         }
@@ -215,12 +221,39 @@ namespace LLM_Handler
             return memory_facts_prompt;
         }
 
+        void ApplyEmotionalEffect()
+        {
+            switch (_aiParser.emotion)
+            {
+                case "annoyed":
+                    _patienceMeter -= 0.5f;
+                    break;
+                case "angry":
+                    _patienceMeter -= 1;
+                    break;
+                case "pleased":
+                    _patienceMeter += 0.5f;
+                    break;
+                case "happy":
+                    _patienceMeter += 1;
+                    break;
+            }
+        }
+
         NegotiationState DetermineIntent(float? playerOffer, float aiPrice)
         {
-            // Note:
-            // There should probably be a way for the AI to ACCEPT the Player's offer.
-            // This function should probably also handle that
+            // Check for patience meter
+            if (_patienceMeter >= ACCEPTANCE_PATIENCE_METER)
+            {
+                return NegotiationState.accept;
+            }
+            else if(_patienceMeter <= -REFUSAL_PATIENCE_METER)
+            {
+                return NegotiationState.reject;
+            }
 
+
+            // Check the Player's Numerical Offer
             if (!playerOffer.HasValue) return NegotiationState.negotiation;
 
             if (aiPrice == playerOffer.Value) return NegotiationState.accept;
@@ -229,6 +262,8 @@ namespace LLM_Handler
 
             if (playerOffer < _itemManager.SelectedItem.ItemBasePrice)
             {
+                _patienceMeter -= 1;
+
                 if (_offersMade < 3)
                 {
                     return NegotiationState.counteroffer;

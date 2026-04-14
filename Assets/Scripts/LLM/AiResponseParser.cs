@@ -14,6 +14,8 @@ namespace LLM_Handler
         public string accept_message;
         public string reject_message;
 
+        public string emotion;
+
         public void ParseResponse(string input)
         {
             Debug.Log(input);
@@ -23,6 +25,8 @@ namespace LLM_Handler
             Debug.Log("emotion: " + responseData.emotion);
             Debug.Log("memory fact: " + responseData.memory_fact);
             Debug.Log("extracted offer: " + responseData.parsed_offer);
+
+            emotion = responseData.emotion;
 
             negotiate_message = responseData.draft_negotiate;
             counter_message = responseData.draft_counter;

@@ -9,8 +9,8 @@ public class GameManager : MonoBehaviour
 
 
     // Getters
-    public ItemManager itemManager { get; private set; }
-    public AIPersonaManager aiManager { get; private set; }
+    public ItemManager ItemManager { get; private set; }
+    public AIPersonaManager AiManager { get; private set; }
 
     private void Awake()
     {
@@ -23,8 +23,8 @@ public class GameManager : MonoBehaviour
             Instance = this;
         }
 
-        itemManager = SpawnManagerIfMissing<ItemManager>(_itemManagerPrefab);
-        aiManager = SpawnManagerIfMissing<AIPersonaManager>(_aiManagerPrefab);
+        ItemManager = SpawnManagerIfMissing<ItemManager>(_itemManagerPrefab);
+        AiManager = SpawnManagerIfMissing<AIPersonaManager>(_aiManagerPrefab);
 
         //aiManager.SetStartingPrice();
     }
@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour
     void InitializeGame()
     {
 
-        aiManager.SetStartingPrice();
+        AiManager.SetStartingPrice();
 
         var ui = FindAnyObjectByType<ItemUIDisplay>();
         if (ui != null)
@@ -46,13 +46,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private T SpawnManagerIfMissing<T>(GameObject manager_prefab) where T : MonoBehaviour
+    private T SpawnManagerIfMissing<T>(GameObject managerPrefab) where T : MonoBehaviour
     {
         T manager = FindAnyObjectByType<T>();
 
         if (manager == null)
         {
-            manager = Instantiate(manager_prefab).GetComponent<T>();
+            manager = Instantiate(managerPrefab).GetComponent<T>();
         }
 
         return manager;

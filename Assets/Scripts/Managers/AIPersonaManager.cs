@@ -67,7 +67,7 @@ public class AIPersonaManager : MonoBehaviour
 
     public void SetStartingPrice()
     {
-        _itemManager = GameManager.Instance.itemManager;
+        _itemManager = GameManager.Instance.ItemManager;
 
         _startingAIAskingPrice = Math.Max((int)(_itemManager.SelectedItem.ItemBaseAskPrice *
                (SelectedPersona.AskingPriceRate + (UnityEngine.Random.Range(-SelectedPersona.AskingRateVariation, SelectedPersona.AskingRateVariation)))), (int)(_itemManager.SelectedItem.ItemBaseAskPrice));

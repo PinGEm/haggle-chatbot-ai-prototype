@@ -7,13 +7,13 @@ public class SoundFXManager : MonoBehaviour
     public static SoundFXManager Instance;
 
     [Header("Click Sounds")]
-    [SerializeField] private AudioSource soundSFxObject;
-    [SerializeField] private AudioClip clickSoundClip;
-    [SerializeField] private AudioClip[] clickSoundClips;
+    [SerializeField] private AudioSource _soundSFxObject;
+    [SerializeField] private AudioClip _clickSoundClip;
+    [SerializeField] private AudioClip[] _clickSoundClips;
 
     [Header("Movement Sounds (Experimental)")]
-    [SerializeField] private AudioSource dragAudioSource;
-    [SerializeField] private AudioClip dragSwooshClip;
+    [SerializeField] private AudioSource _dragAudioSource;
+    [SerializeField] private AudioClip _dragSwooshClip;
     [Range(0f, 1f)] public float dragVolume = 0.2f;
     public float movementThreshold = 0.5f;
     public float fadeSpeed = 15f; // NEW: Controls how smooth the fade in/out is!
@@ -42,7 +42,7 @@ public class SoundFXManager : MonoBehaviour
 
     private void HandleMovementSound()
     {
-        if (dragAudioSource == null || dragSwooshClip == null) return;
+        if (_dragAudioSource == null || _dragSwooshClip == null) return;
 
         // Just check the raw mouse speed, NO clicking required!
         float currentMouseSpeed = Pointer.current.delta.ReadValue().magnitude;
@@ -55,21 +55,21 @@ public class SoundFXManager : MonoBehaviour
         }
 
         // Make sure the audio source is always looping silently in the background
-        if (!dragAudioSource.isPlaying)
+        if (!_dragAudioSource.isPlaying)
         {
-            dragAudioSource.clip = dragSwooshClip;
-            dragAudioSource.loop = true;
-            dragAudioSource.volume = 0f; // Start silent so it doesn't pop
-            dragAudioSource.Play();
+            _dragAudioSource.clip = _dragSwooshClip;
+            _dragAudioSource.loop = true;
+            _dragAudioSource.volume = 0f; // Start silent so it doesn't pop
+            _dragAudioSource.Play();
         }
 
         // THE GLITCH FIX: Smoothly slide the volume up and down instead of instantly cutting it
-        dragAudioSource.volume = Mathf.Lerp(dragAudioSource.volume, targetVolume, Time.deltaTime * fadeSpeed);
+        _dragAudioSource.volume = Mathf.Lerp(_dragAudioSource.volume, targetVolume, Time.deltaTime * fadeSpeed);
     }
 
     public void PlaySoundFXClip(AudioClip audioClip, Transform spawnTransform, float volume)
     {
-        AudioSource audioSource = Instantiate(soundSFxObject, spawnTransform.position, Quaternion.identity);
+        AudioSource audioSource = Instantiate(_soundSFxObject, spawnTransform.position, Quaternion.identity);
         audioSource.clip = audioClip;
         audioSource.volume = volume;
         audioSource.Play();
@@ -81,7 +81,7 @@ public class SoundFXManager : MonoBehaviour
     public void PlayRandomSoundFXClip(AudioClip[] audioClip, Transform spawnTransform, float volume)
     {
         int rand = Random.Range(0, audioClip.Length);
-        AudioSource audioSource = Instantiate(soundSFxObject, spawnTransform.position, Quaternion.identity);
+        AudioSource audioSource = Instantiate(_soundSFxObject, spawnTransform.position, Quaternion.identity);
         audioSource.clip = audioClip[rand];
         audioSource.volume = volume;
         audioSource.Play();
@@ -92,6 +92,6 @@ public class SoundFXManager : MonoBehaviour
 
     public void Click()
     {
-        PlayRandomSoundFXClip(clickSoundClips, transform, 1f);
+        PlayRandomSoundFXClip(_clickSoundClips, transform, 1f);
     }
 }

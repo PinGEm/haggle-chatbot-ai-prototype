@@ -9,7 +9,7 @@ public class ChatManager : MonoBehaviour
     public TMP_InputField chatInput;
     public Transform contentContainer;
     public ScrollRect chatScrollRect;
-    private MaxWidthClamp AiChatWidth;
+    private MaxWidthClamp _aiChatWidth;
 
     [Header("Prefabs")]
     public GameObject playerMessagePrefab;
@@ -22,7 +22,7 @@ public class ChatManager : MonoBehaviour
 
     [Header("Typing Indicator")]
     public GameObject typingIndicatorPrefab;
-    private GameObject currentTypingIndicator; // Keeps track of the active dots
+    private GameObject _currentTypingIndicator; // Keeps track of the active dots
 
     public void SendChatMessage()
     {
@@ -101,10 +101,10 @@ public class ChatManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
         // Now clamp it
-        AiChatWidth = newAiMessage.GetComponentInChildren<MaxWidthClamp>();
-        if (AiChatWidth != null)
+        _aiChatWidth = newAiMessage.GetComponentInChildren<MaxWidthClamp>();
+        if (_aiChatWidth != null)
         {
-            AiChatWidth.ClampWidth();
+            _aiChatWidth.ClampWidth();
         }
 
         // Wait one more frame for the clamp math to finish
@@ -125,10 +125,10 @@ public class ChatManager : MonoBehaviour
     public void ShowTypingIndicator()
     {
         // Only spawn it if one doesn't already exist
-        if (currentTypingIndicator == null && typingIndicatorPrefab != null)
+        if (_currentTypingIndicator == null && typingIndicatorPrefab != null)
         {
             // Spawn the dots in the chat list
-            currentTypingIndicator = Instantiate(typingIndicatorPrefab, contentContainer.transform);
+            _currentTypingIndicator = Instantiate(typingIndicatorPrefab, contentContainer.transform);
 
             // Force the scrollbar to the bottom so the player sees the dots
             StartCoroutine(ScrollToBottom());
@@ -138,10 +138,10 @@ public class ChatManager : MonoBehaviour
     public void HideTypingIndicator()
     {
         // Destroy the dots when the real message arrives
-        if (currentTypingIndicator != null)
+        if (_currentTypingIndicator != null)
         {
-            Destroy(currentTypingIndicator);
-            currentTypingIndicator = null; // Reset the tracker
+            Destroy(_currentTypingIndicator);
+            _currentTypingIndicator = null; // Reset the tracker
         }
     }
 

@@ -4,7 +4,7 @@ using UnityEngine.UI; // <-- We need this to talk to your Sliders
 
 public class SoundMixerManager : MonoBehaviour
 {
-    [SerializeField] private AudioMixer audioMixer;
+    [SerializeField] private AudioMixer _audioMixer;
 
     [Header("Drag your UI Sliders in here!")]
     public Slider masterSlider;
@@ -34,7 +34,7 @@ public class SoundMixerManager : MonoBehaviour
 
     public void SetMasterVolume(float level)
     {
-        audioMixer.SetFloat("masterVolume", Mathf.Log10(level) * 20f);
+        _audioMixer.SetFloat("masterVolume", Mathf.Log10(level) * 20f);
 
         // --- THIS IS WHAT SAVES THE VOLUME ---
         PlayerPrefs.SetFloat("masterVolume", level);
@@ -43,7 +43,7 @@ public class SoundMixerManager : MonoBehaviour
 
     public void SetSoundFXVolume(float level)
     {
-        audioMixer.SetFloat("soundFXVolume", Mathf.Log10(level) * 20f);
+        _audioMixer.SetFloat("soundFXVolume", Mathf.Log10(level) * 20f);
 
         // Save SFX
         PlayerPrefs.SetFloat("soundFXVolume", level);
@@ -52,7 +52,7 @@ public class SoundMixerManager : MonoBehaviour
 
     public void SetMusicVolume(float level)
     {
-        audioMixer.SetFloat("musicVolume", Mathf.Log10(level) * 20f);
+        _audioMixer.SetFloat("musicVolume", Mathf.Log10(level) * 20f);
 
         // Save Music
         PlayerPrefs.SetFloat("musicVolume", level);

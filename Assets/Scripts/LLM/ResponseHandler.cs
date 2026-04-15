@@ -56,15 +56,15 @@ namespace LLM_Handler
         private void Start()
         {
             // Persona Manager
-            _personaManager = GameManager.Instance.aiManager;
+            _personaManager = GameManager.Instance.AiManager;
 
             _personaManager.SelectedPersona.InitializePrompt();
 
             _aiParser = new AiResponseParser();
 
             // Item Manager
-            _itemManager = GameManager.Instance.itemManager;
-            _currentAIAskingPrice = GameManager.Instance.aiManager.StartingAIAskingPrice;
+            _itemManager = GameManager.Instance.ItemManager;
+            _currentAIAskingPrice = GameManager.Instance.AiManager.StartingAIAskingPrice;
         }
 
         public void SendResponse(Button sendButton)

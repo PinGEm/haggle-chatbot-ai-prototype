@@ -7,14 +7,14 @@ using TMPro;
 [RequireComponent(typeof(LayoutElement))]
 public class MaxWidthClamp : MonoBehaviour
 {
-    [SerializeField] private float maxWidth = 720f;
-    private TextMeshProUGUI textMesh;
-    private LayoutElement layoutElement;
+    [SerializeField] private float _maxWidth = 720f;
+    private TextMeshProUGUI _textMesh;
+    private LayoutElement _layoutElement;
 
     void Start()
     {
-        textMesh = GetComponent<TextMeshProUGUI>();
-        layoutElement = GetComponent<LayoutElement>();
+        _textMesh = GetComponent<TextMeshProUGUI>();
+        _layoutElement = GetComponent<LayoutElement>();
 
         ClampWidth();
     }
@@ -26,16 +26,16 @@ public class MaxWidthClamp : MonoBehaviour
 
     public void ClampWidth()
     {
-        if (textMesh == null || layoutElement == null) return;
+        if (_textMesh == null || _layoutElement == null) return;
 
 
-        if (textMesh.preferredWidth > maxWidth)
+        if (_textMesh.preferredWidth > _maxWidth)
         {
-            if (layoutElement.preferredWidth != maxWidth) layoutElement.preferredWidth = maxWidth;
+            if (_layoutElement.preferredWidth != _maxWidth) _layoutElement.preferredWidth = _maxWidth;
         }
         else
         {
-            if (layoutElement.preferredWidth != -1) layoutElement.preferredWidth = -1;
+            if (_layoutElement.preferredWidth != -1) _layoutElement.preferredWidth = -1;
         }
     }
 }

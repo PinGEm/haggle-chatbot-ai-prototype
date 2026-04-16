@@ -36,7 +36,6 @@ public class GameManager : MonoBehaviour
 
     void InitializeGame()
     {
-
         aiManager.SetStartingPrice();
 
         var ui = FindAnyObjectByType<ItemUIDisplay>();

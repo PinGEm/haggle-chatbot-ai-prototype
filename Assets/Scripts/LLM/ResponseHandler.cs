@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using LLMAgent = LLMUnity.LLMAgent;
 using System;
-using static UnityEngine.Audio.ProcessorInstance;
-using System.Runtime.CompilerServices;
+using System.Collections;
 
 
 namespace LLM_Handler
@@ -36,10 +35,12 @@ namespace LLM_Handler
         #region Temporary Variables
         [SerializeField] private TMP_Text _aiIntent;
         [SerializeField] private ResultPage _resultScript;
+        [SerializeField] private TMP_Text _debugText;
 
         // Temporary Variables
         int _offersMade = 0;
         float _currentAIAskingPrice;
+        public float SetCurrentAIAskingPrice { set { _currentAIAskingPrice = value; } }
         float _patienceMeter = 0;
         #endregion
 
@@ -64,6 +65,12 @@ namespace LLM_Handler
 
             // Item Manager
             _itemManager = GameManager.Instance.itemManager;
+            StartCoroutine(InitializeDelayed());
+        }
+
+        IEnumerator InitializeDelayed()
+        {
+            yield return new WaitUntil(() => GameManager.Instance.aiManager.StartingAIAskingPrice != 0);
             _currentAIAskingPrice = GameManager.Instance.aiManager.StartingAIAskingPrice;
         }
 
@@ -86,21 +93,31 @@ namespace LLM_Handler
             // Send full response to LLM
             string reply = await _llmAgent.Chat(fullPrompt);
             sendButton.interactable = true;
+            
             // Parse Response to JSON
             _aiParser.ParseResponse(reply);
-
+            try
+            {
+                JsonUtility.FromJsonOverwrite(reply, new object());
+            }
+            catch(System.Exception)
+            {
+                _resultScript.ShowResult("INVALID AI RESPONSE: (temporary to check)", Color.red);
+            }
 
             // ----- DECISION MAKING SYSTEM ----- \\
             int parsedOffer = _aiParser.player_offer;
+            parsedOffer = OfferParserCheck(_previousMessage);
 
             ApplyEmotionalEffect();
             _negotiationState = DetermineIntent(parsedOffer, _currentAIAskingPrice);
             float newAIPrice = DetermineNewAIPrice(_currentAIAskingPrice, parsedOffer);
-
+            
             if (newAIPrice < parsedOffer)
             {
                 newAIPrice = (float)parsedOffer;
                 _negotiationState = NegotiationState.accept;
+                _debugText.text = "AI PRICING CHANGE WIN:\r\n";
             }
 
             if (newAIPrice == 0) newAIPrice = _currentAIAskingPrice;
@@ -119,6 +136,7 @@ namespace LLM_Handler
             }
 
             finalMessage = finalMessage.Replace("[V]", newAIPrice.ToString());
+            finalMessage = finalMessage.Replace("[v]", newAIPrice.ToString());
 
             // Validate AI Response
             bool valid = AIOutputValidator.ValidatePrice(finalMessage, _aiParser.actual_intent, (int)newAIPrice)
@@ -155,7 +173,12 @@ namespace LLM_Handler
 
             Debug.Log("ACTUAL INTENT: " + _aiParser.actual_intent);
 
-            if (_negotiationState == NegotiationState.accept) _resultScript.ShowResult($"AI Accepts Offer: {newAIPrice}", Color.green);
+            if (_negotiationState == NegotiationState.accept)
+            { 
+                _resultScript.ShowResult($"AI Accepts Offer: {newAIPrice}", Color.green);
+                _debugText.text += reply;
+            }
+
             if (_negotiationState == NegotiationState.reject) _resultScript.ShowResult("AI Declines Offer", Color.red);
         }
 
@@ -165,7 +188,15 @@ namespace LLM_Handler
 
             player_input_prompt += $"Player Message: {_messageField.text}\r\n";
 
+            // Apply punishments if player response is "bad"
             if (_previousMessage == _messageField.text) _patienceMeter -= 1;
+
+            if (_messageField.text.Length < 5 || !System.Text.RegularExpressions.Regex.IsMatch(_messageField.text, @"[a-zA-Z0-9]"))
+            {
+                _patienceMeter -= 2; // Punish spam severely.
+            }
+
+
             _previousMessage = _messageField.text;
 
             return player_input_prompt + "\r\n";
@@ -184,10 +215,6 @@ namespace LLM_Handler
             {
                 item_state_prompt += "- " + item_detail + "\r\n";
             }
-
-            //item_state_prompt += $"Current Asking Price: {_currentAIAskingPrice}\r\n";
-            //item_state_prompt += $"Number of offers made so far: {_offersMade}\r\n";
-            //item_state_prompt += $"Player Behavior: {"Neutral"}\r\n\r\n"; // change to be aggressive (many low offers) | passive
 
             item_state_prompt += "\r\n";
 
@@ -223,6 +250,8 @@ namespace LLM_Handler
 
         void ApplyEmotionalEffect()
         {
+            // If more emotions are allowed inside the grammar, ensure to add effects here
+
             switch (_aiParser.emotion)
             {
                 case "annoyed":
@@ -242,23 +271,13 @@ namespace LLM_Handler
 
         NegotiationState DetermineIntent(float? playerOffer, float aiPrice)
         {
-            // Check for patience meter
-            if (_patienceMeter >= ACCEPTANCE_PATIENCE_METER)
-            {
-                return NegotiationState.accept;
-            }
-            else if(_patienceMeter <= -REFUSAL_PATIENCE_METER)
-            {
-                return NegotiationState.reject;
-            }
+            bool isOffer = playerOffer.HasValue && playerOffer != 0;
 
 
             // Check the Player's Numerical Offer
-            if (!playerOffer.HasValue) return NegotiationState.negotiation;
+            if (!isOffer) return NegotiationState.negotiation;
 
             if (aiPrice == playerOffer.Value) return NegotiationState.accept;
-
-            if (_offersMade >= MAXIMUM_OFFERS) return NegotiationState.reject;
 
             if (playerOffer < _itemManager.SelectedItem.ItemBasePrice)
             {
@@ -270,7 +289,20 @@ namespace LLM_Handler
                 }
 
                 return NegotiationState.reject;
-            } 
+            }
+
+            // Check for patience meter
+            if (_patienceMeter >= ACCEPTANCE_PATIENCE_METER)
+            {
+                _debugText.text = "PATIENCE METER WIN\r\n";
+                return NegotiationState.accept;
+            }
+            else if (_patienceMeter <= -REFUSAL_PATIENCE_METER)
+            {
+                return NegotiationState.reject;
+            }
+
+            if (_offersMade >= MAXIMUM_OFFERS) return NegotiationState.reject;
 
             // Assume counter offer
             return NegotiationState.counteroffer;
@@ -281,10 +313,12 @@ namespace LLM_Handler
             // Note: Implementation price reaction to things like
             // patience meter, and behavior reactions should be implemented when possible
 
+            if (_negotiationState != NegotiationState.counteroffer || currentPlayerPrice <= 0) return currentAIPrice;
+
             float lowballLimit = 0.65f;
 
             float newPrice = currentAIPrice;
-            bool isExtremeLowball = (currentPlayerPrice > _itemManager.SelectedItem.ItemBasePrice * lowballLimit);
+            bool isExtremeLowball = (currentPlayerPrice < _itemManager.SelectedItem.ItemBasePrice * lowballLimit);
 
             if (currentPlayerPrice.HasValue && !isExtremeLowball)
             {
@@ -316,7 +350,7 @@ namespace LLM_Handler
                 case 6: newPrice -= 0; break;
             }
 
-            newPrice = Mathf.Clamp(newPrice, _itemManager.SelectedItem.ItemBasePrice + 10, _currentAIAskingPrice - 10);
+            newPrice = Mathf.Clamp(newPrice, _itemManager.SelectedItem.ItemBasePrice - 10, _currentAIAskingPrice + 10);
                     
             return newPrice;
         }
@@ -340,6 +374,12 @@ namespace LLM_Handler
                 if (_personaManager.SelectedPersona.PricePrefs >= 0.5) return Math.Max(nearestTenthMultiple, nearestFifthMultiple);
                 else return Math.Min(nearestTenthMultiple,nearestFifthMultiple);
             }
+        }
+
+        int OfferParserCheck(string text)
+        {
+            string digits = System.Text.RegularExpressions.Regex.Match(text, @"\d+").Value;
+            return string.IsNullOrEmpty(digits) ? 0 : int.Parse(digits);
         }
     }
 }

@@ -10,7 +10,7 @@ public class AIPersonaManager : MonoBehaviour
 {
     private PersonalityScriptableObject[] _aiPersonas;
     private PersonalityScriptableObject _selectedPersona;
-    private int _startingAIAskingPrice;
+    private int _startingAIAskingPrice = 0;
 
     public int StartingAIAskingPrice { get { return _startingAIAskingPrice; } }
     public PersonalityScriptableObject SelectedPersona { get { return _selectedPersona; } }

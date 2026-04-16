@@ -64,14 +64,14 @@ namespace LLM_Handler
             _aiParser = new AiResponseParser();
 
             // Item Manager
-            _itemManager = GameManager.Instance.itemManager;
+            _itemManager = GameManager.Instance.ItemManager;
             StartCoroutine(InitializeDelayed());
         }
 
         IEnumerator InitializeDelayed()
         {
-            yield return new WaitUntil(() => GameManager.Instance.aiManager.StartingAIAskingPrice != 0);
-            _currentAIAskingPrice = GameManager.Instance.aiManager.StartingAIAskingPrice;
+            yield return new WaitUntil(() => GameManager.Instance.AiManager.StartingAIAskingPrice != 0);
+            _currentAIAskingPrice = GameManager.Instance.AiManager.StartingAIAskingPrice;
         }
 
         public void SendResponse(Button sendButton)

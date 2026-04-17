@@ -6,6 +6,8 @@ public class ItemManager : MonoBehaviour
     private ItemScriptableObject[] _allItems;
     private ItemScriptableObject _selectedItem;
 
+    // This is the player's actual backpack
+    private System.Collections.Generic.List<ItemScriptableObject> _ownedItems = new System.Collections.Generic.List<ItemScriptableObject>();
     public ItemScriptableObject SelectedItem {  get { return _selectedItem; } }
 
     bool _itemCheck = true;
@@ -29,6 +31,11 @@ public class ItemManager : MonoBehaviour
         }
     }
 
+    public ItemScriptableObject[] GetAllItems()
+    {
+        return _allItems;
+    }
+
     void SelectRandomItem()
     {
         if (!_itemCheck) return;
@@ -43,5 +50,15 @@ public class ItemManager : MonoBehaviour
 
         int randIndex = Random.Range(0,_allItems.Length);
         _selectedItem = _allItems[randIndex];
+    }
+    public System.Collections.Generic.List<ItemScriptableObject> GetOwnedItems()
+    {
+        return _ownedItems;
+    }
+
+    public void AddItemToInventory(ItemScriptableObject itemToAdd)
+    {
+        _ownedItems.Add(itemToAdd);
+        Debug.Log("Cheat Button: Added " + itemToAdd.ItemName + " to the backpack!");
     }
 }

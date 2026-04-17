@@ -11,6 +11,19 @@ public class ItemUIDisplay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _priceText;
     [SerializeField] private RawImage _itemRawImage;
 
+    // Add this variable at the top with your other serialized fields
+    private ItemScriptableObject _currentItem;
+
+    // Add this function to set the data for a specific slot
+    // This receives an item and updates the UI text/images for this specific slot
+    public void InitializeSlot(ItemScriptableObject item)
+    {
+        if (_nameText != null) _nameText.text = item.ItemName;
+        if (_itemRawImage != null) _itemRawImage.texture = item.ItemImage;
+        if (_descriptionText != null) _descriptionText.text = item.ItemDescription;
+        if (_priceText != null) _priceText.text = "$" + item.ItemBasePrice.ToString();
+    }
+
 
     public void UpdateItemDisplay()
     {

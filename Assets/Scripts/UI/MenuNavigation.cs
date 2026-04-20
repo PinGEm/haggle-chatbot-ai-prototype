@@ -29,6 +29,12 @@ public class MenuNavigation : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene("DraftUIMainMenu");
     }
 
+    public void InventoryScene()
+    {
+        _llmAgent.CancelRequests();
+        UnityEngine.SceneManagement.SceneManager.LoadScene("InventoryUIScene");
+    }
+
     public void MainMenuScene()
     {
         _llmAgent.CancelRequests();

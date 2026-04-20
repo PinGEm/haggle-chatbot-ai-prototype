@@ -22,17 +22,39 @@ public class ItemUIDisplay : MonoBehaviour
         if (_itemRawImage != null) _itemRawImage.texture = item.ItemImage;
         if (_descriptionText != null) _descriptionText.text = item.ItemDescription;
         if (_priceText != null) _priceText.text = "$" + item.ItemBasePrice.ToString();
+
+        // --- NEW CODE: Format the string[] array into bullet points ---
+        if (_detailsText != null)
+        {
+            if (item.ItemDetails != null && item.ItemDetails.Length > 0)
+            {
+                // Joins the array together with a newline and a dash for clean bullet points
+                _detailsText.text = "- " + string.Join("\n- ", item.ItemDetails);
+            }
+            else
+            {
+                _detailsText.text = ""; // Clear it if the array is empty so "Item Details" doesn't just sit there
+            }
+        }
     }
 
 
     public void UpdateItemDisplay()
     {
+
+        Debug.Log("Before Checking Game Manager");
+
         // 1. Make sure the GameManager and ItemManager exist
         if (GameManager.Instance == null || GameManager.Instance.ItemManager == null) return;
+
+        Debug.Log("Before Checking Current Item");
 
         // 2. Grab the item that was already selected
         ItemScriptableObject currentItem = GameManager.Instance.ItemManager.SelectedItem;
         if (currentItem == null) return;
+        Debug.Log(currentItem.ItemName);
+
+        
 
         // 3. Paste the data directly into your 4 UI slots exactly as they are
         if (_nameText != null) _nameText.text = currentItem.ItemName;

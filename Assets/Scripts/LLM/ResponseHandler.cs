@@ -177,6 +177,21 @@ namespace LLM_Handler
             { 
                 _resultScript.ShowResult($"AI Accepts Offer: {newAIPrice}", Color.green);
                 _debugText.text += reply;
+                if (_negotiationState == NegotiationState.accept)
+                {
+                    _resultScript.ShowResult($"AI Accepts Offer: {newAIPrice}", Color.green);
+                    _debugText.text += reply;
+
+                    // 1. Give the player the item!
+                    _itemManager.AddItemToInventory(_itemManager.SelectedItem);
+
+                    // 2. Tell the Inventory UI to refresh (if it's currently in the scene)
+                    InventoryUI inventoryScript = UnityEngine.Object.FindAnyObjectByType<InventoryUI>();
+                    if (inventoryScript != null)
+                    {
+                        inventoryScript.BuildInventory();
+                    }
+                }
             }
 
             if (_negotiationState == NegotiationState.reject) _resultScript.ShowResult("AI Declines Offer", Color.red);

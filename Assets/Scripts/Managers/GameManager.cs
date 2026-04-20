@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -26,6 +27,7 @@ public class GameManager : MonoBehaviour
         ItemManager = SpawnManagerIfMissing<ItemManager>(_itemManagerPrefab);
         AiManager = SpawnManagerIfMissing<AIPersonaManager>(_aiManagerPrefab);
 
+
         //aiManager.SetStartingPrice();
     }
 
@@ -34,14 +36,24 @@ public class GameManager : MonoBehaviour
         InitializeGame();
     }
 
+    IEnumerator InitializeDelayed(ItemUIDisplay ui)
+    {
+        Debug.Log($"Item: {GameManager.Instance.ItemManager.SelectedItem}");
+        yield return new WaitUntil(() => !string.IsNullOrWhiteSpace(GameManager.Instance.ItemManager.SelectedItem.ItemName));
+        Debug.Log("Updating Item Display");
+        ui.UpdateItemDisplay();
+    }
     void InitializeGame()
     {
+        Debug.Log("Initializing Game");
         AiManager.SetStartingPrice();
 
         var ui = FindAnyObjectByType<ItemUIDisplay>();
         if (ui != null)
         {
-            ui.UpdateItemDisplay();
+            Debug.Log($"Item UI Display Found: {ui.gameObject.name}");
+            StartCoroutine(InitializeDelayed(ui));
+            
         }
     }
 

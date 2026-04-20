@@ -45,13 +45,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d683008c768d4044080d11858a32c5d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundFXManager
-  soundSFxObject: {fileID: 5710553148918886085, guid: 827f4ac3f8f74b84b9891b1b635ed61d, type: 3}
-  clickSoundClip: {fileID: 8300000, guid: 0f577d493e159f3458fd52066465688a, type: 3}
-  clickSoundClips:
+  _soundSFxObject: {fileID: 2939063033747421622}
+  _clickSoundClip: {fileID: 0}
+  _clickSoundClips:
   - {fileID: 8300000, guid: 40d73125dbd62da42b7038d8b79e8b4f, type: 3}
   - {fileID: 8300000, guid: 0f577d493e159f3458fd52066465688a, type: 3}
-  dragAudioSource: {fileID: 2939063033747421622}
-  dragSwooshClip: {fileID: 8300000, guid: c3d81e9219caf90409f7529630f8e218, type: 3}
+  _dragAudioSource: {fileID: 2939063033747421622}
+  _dragSwooshClip: {fileID: 8300000, guid: c3d81e9219caf90409f7529630f8e218, type: 3}
   dragVolume: 0.651
   movementThreshold: 2
   fadeSpeed: 15

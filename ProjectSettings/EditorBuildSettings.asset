@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/InitialPrototypeScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
+    path: Assets/Scenes/InventoryUIScene.unity
+    guid: 1c62c62e5a43534448013cebbd596933
+  - enabled: 1
     path: Assets/Scenes/DraftUIMainMenu.unity
     guid: 61fe356ba58c450489ff772e0682d2da
   m_configObjects:

@@ -76,6 +76,8 @@ namespace LLM_Handler
 
         public void SendResponse(Button sendButton)
         {
+            if (string.IsNullOrWhiteSpace(_messageField.text) || _messageField.text == "") return;
+
             // Block player input while we get the AI's response
             sendButton.interactable = false;
 

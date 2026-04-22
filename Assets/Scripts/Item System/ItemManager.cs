@@ -10,7 +10,7 @@ public class ItemManager : MonoBehaviour
     private System.Collections.Generic.List<ItemScriptableObject> _ownedItems = new System.Collections.Generic.List<ItemScriptableObject>();
     public ItemScriptableObject SelectedItem {  get { return _selectedItem; } }
 
-    bool _itemCheck = true;
+    bool isItemChecked = true;
 
     void Awake()
     {
@@ -27,7 +27,7 @@ public class ItemManager : MonoBehaviour
 
         if (_allItems.Length == 0)
         {
-            _itemCheck = false;
+            isItemChecked = false;
             Debug.LogWarning("No items found in Resources/Items!");
         }
     }
@@ -39,7 +39,7 @@ public class ItemManager : MonoBehaviour
 
     void SelectRandomItem()
     {
-        if (!_itemCheck) return;
+        if (!isItemChecked) return;
         string itemList = "";
 
         foreach (var item in _allItems)

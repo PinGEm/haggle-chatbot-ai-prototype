@@ -16,7 +16,7 @@ public class AIPersonaManager : MonoBehaviour
     public PersonalityScriptableObject SelectedPersona { get { return _selectedPersona; } }
 
     [SerializeField] private TextMeshProUGUI _nameLabel;
-    bool _personaCheck = true;
+    bool isPersonaChecked = true;
 
     private ItemManager _itemManager;
 
@@ -26,7 +26,7 @@ public class AIPersonaManager : MonoBehaviour
         LoadAllPersona();
         SelectRandomPersona();
 
-        _nameLabel.text = _selectedPersona.name;
+        if(_nameLabel != null) _nameLabel.text = _selectedPersona.name;
         Debug.Log("Selected Personality This Run: " + _selectedPersona.ToString());
 
         string personalityTraits = "";
@@ -44,14 +44,14 @@ public class AIPersonaManager : MonoBehaviour
 
         if (_aiPersonas.Length == 0)
         {
-            _personaCheck = false;
+            isPersonaChecked = false;
             Debug.LogWarning("No personalities found in Resources/AIPersonalities!");
         }
     }
 
     void SelectRandomPersona()
     {
-        if (!_personaCheck) return;
+        if (!isPersonaChecked) return;
         string personaList = "";
 
         foreach (var persona in _aiPersonas)

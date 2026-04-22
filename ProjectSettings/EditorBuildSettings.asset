@@ -17,5 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DraftUIMainMenu.unity
     guid: 61fe356ba58c450489ff772e0682d2da
+  - enabled: 1
+    path: Assets/Scenes/WorldScene.unity
+    guid: f4fe7d47309c78d4bad5f3ac447a4bc2
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
